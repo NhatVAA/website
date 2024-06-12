@@ -28,13 +28,24 @@ class RegisterController extends Controller
             'birth' => $request->input('birth'),
             'gender' => $request->input('gender'),
         ];
-        $user = User::create($input);
-        $arr = [
-            'status' => true,
-            'message' => 'Đăng ký thành công!',
-            'data' => new ResourceUser($user),
-        ];
-        return response()->json($arr, 201);
+        try{
+            $user = User::create($input);
+            $arr = [
+                'status' => true,
+                'message' => 'Đăng ký thành công!',
+                'data' => new ResourceUser($user),
+            ];
+            return response()->json($arr, 201);
+        }
+        catch (\Exception $e) {
+            $arr = [
+                'status' => false,
+                'message' => $e->getMessage(),
+                'data' => [],
+            ];
+            return response()->json($arr, 404);
+          }
     }
+        
 
 }
