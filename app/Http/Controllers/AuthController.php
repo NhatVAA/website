@@ -68,7 +68,7 @@ class AuthController extends Controller
     //     return redirect()->route('auth.admin');
     // }
     public function logout()  {
-        auth()->user()->tokens()->delete()->regenerateToken();
+        auth()->user()->tokens()->delete();
         $arr = [
             'success' => true,
             'message' => 'Bạn đã thoát và token đã xóa',

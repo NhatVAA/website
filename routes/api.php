@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use Laravel\Sanctum\Sanctum;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\PostController;
 
 
 
@@ -32,5 +33,6 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
         return auth()->user();
     });
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::apiResource('/post', PostController::class, );
 });
 
