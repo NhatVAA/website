@@ -138,7 +138,7 @@ class PostController extends Controller
                 'message' => 'Bài viết đã được xoá',
                 'data' => [],
             ];
-            return response()->json($arr,204);  
+            return response()->json($arr,200);  
         }
         
         catch (\Exception $e) {
