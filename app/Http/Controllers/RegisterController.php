@@ -30,10 +30,15 @@ class RegisterController extends Controller
         ];
         try{
             $user = User::create($input);
+            $token= $user->createToken('auth_token')->plainTextToken;
             $arr = [
                 'status' => true,
                 'message' => 'Đăng ký thành công!',
-                'data' => new ResourceUser($user),
+                'data' => [
+                            // new ResourceUser($user),
+                            'access_token' => $token, 
+                            'token_type' => 'Bearer'
+                          ],
             ];
             return response()->json($arr, 201);
         }
