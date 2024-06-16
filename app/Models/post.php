@@ -26,11 +26,11 @@ class Post extends Model
     }
     public function comments()
     {
-        return $this->hasMany(Comment::class);
+        return $this->hasMany(Comment::class ,"id_Post");
     }
     public function likes()
     {
-        return $this->hasMany(Like::class);
+        return $this->hasMany(Like::class, "id_Post");
     }
 
 }

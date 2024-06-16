@@ -60,7 +60,13 @@ class ProfileController extends Controller
     {
         //
         $user = new User();
-        
+        $arr = [
+            'status' => true,
+            'message' => 'Xin chào '.$user->name,
+            'data' => [
+                'user' => $user,
+            ],
+        ];
     }
 
     /**

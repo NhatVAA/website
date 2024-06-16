@@ -23,8 +23,10 @@ class post extends JsonResource
             'content' => $this -> content,
             'privacy' => $this -> privacy,
             'idUser' => $this ->idUser,
-            'updated_at' => $this->updated_at->format('d/m/Y'),
-            'created_at' => $this->created_at->format('d/m/Y'),
+            'updated_at' => $this->updated_at->format('d/m/Y H:i:s'),   
+            'created_at' => $this->created_at->format('d/m/Y H:i:s'),
+            'photos' => $this->photos->toArray(),
+            'videos' => $this->videos->toArray(),
         ];
 
     }

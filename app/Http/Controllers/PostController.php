@@ -12,19 +12,19 @@ use App\Models\Photo;
 use App\Models\Video;
 use App\Http\Resources\post as postResource;
 
-
 class PostController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $post = Post::with('photos','videos','comments', 'likes')->latest()->get();
+    public function index(){
+        $post = Post::with('photos','videos','comments', 'likes')->where('privacy',0)->latest()->get();
+        $arrPost = postResource::collection($post);
         $arr = [
             'status' => true,
             'message' => 'danh sách các bài viết',
-            'data' => Post::collection($post),
+            // 'data' => $post->toArray(),
+            'data' => $arrPost,
         ];
         return response()->json($arr,200);
     }
@@ -33,6 +33,13 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    /*
+        Hàm xử lý đăng bài viết:
+        - content(string): caption của bài viết
+        - privacy(int): 0 cho chế độ công khai, 1 cho chế độ chỉ mình tôi
+        - photoUrl[](array): là một mảng chứa các file hình
+        - 
+    */
     public function store(Request $request)
     {
         $input = $request->all();
@@ -283,7 +290,8 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        $post = $post->with('photos','videos','comments', 'likes',)->find($post);
+        // bài viết chế độ công khai (privacy = 0)
+        $post = $post->with('photos','videos','comments', 'likes',)->where('privacy',0)->find($post);
 
         if(is_null($post))
             {
@@ -299,7 +307,7 @@ class PostController extends Controller
             $arr = [
                 'success' => True,
                 'message' => 'Chi tiết bài viết',
-                'data' => $post,
+                'data' => $post->toArray(),
                 ];
             return response()->json($arr,200);    
         }  
