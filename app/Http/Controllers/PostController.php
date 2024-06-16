@@ -20,11 +20,11 @@ class PostController extends Controller
      */
     public function index()
     {
-        $post = Post::latest()->get();
+        $post = Post::with('photos','videos','comments', 'likes')->latest()->get();
         $arr = [
             'status' => true,
             'message' => 'danh sách các bài viết',
-            'data' => postResource::collection($post),
+            'data' => Post::collection($post),
         ];
         return response()->json($arr,200);
     }
@@ -283,7 +283,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        $post = $post->with('photos','videos')->find($post);
+        $post = $post->with('photos','videos','comments', 'likes',)->find($post);
 
         if(is_null($post))
             {
@@ -367,7 +367,9 @@ class PostController extends Controller
                 unlink(public_path('/uploads/video/' . $filename));
                 }
                 $post->videos()->delete();
-            $post->delete();
+                $post->comments()->delete();
+                $post->likes()->delete();
+                $post->delete();
             $arr = [
                 'status' => true,
                 'message' => 'Bài viết đã được xoá',

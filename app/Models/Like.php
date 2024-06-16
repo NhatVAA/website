@@ -5,15 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Photo extends Model
+class Like extends Model
 {
     use HasFactory;
 
-    protected $table = 'photo';
+    protected $table = 'like';
     protected $fillable = [
-        'idPost',
-        'idStory',
-        'photoUrl',
+        'id_Post',
+        'id_User',
+        'content',
     ];
 
     public function post()
