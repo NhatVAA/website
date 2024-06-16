@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\AuthRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Http\Resources\user as userResource;
 
 class ProfileController extends Controller
 {
@@ -19,6 +20,7 @@ class ProfileController extends Controller
         //
         if(auth()->user() != null){
             $user = auth()->user();
+            $user = userResource::collection($user);
             $arr = [
                 'status' => true,
                 'message' => 'Xin chào '.$user->name,
@@ -59,7 +61,7 @@ class ProfileController extends Controller
     public function show(string $id)
     {
         //
-        $user = new User();
+        $user = User::all()->find($id);
         $arr = [
             'status' => true,
             'message' => 'Xin chào '.$user->name,

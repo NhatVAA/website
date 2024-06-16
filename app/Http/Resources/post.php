@@ -27,6 +27,8 @@ class post extends JsonResource
             'created_at' => $this->created_at->format('d/m/Y H:i:s'),
             'photos' => $this->photos->toArray(),
             'videos' => $this->videos->toArray(),
+            'comments' => $this->comments->toArray(),
+            'likes' => $this->likes->toArray(),
         ];
 
     }

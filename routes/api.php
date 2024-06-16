@@ -9,6 +9,8 @@ use Illuminate\Auth\Middleware\Authenticate as Middleware;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CommentController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -33,5 +35,11 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     Route::apiResource('/profile', ProfileController::class, );
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::apiResource('/post', PostController::class, );
+    // Route::apiResource('/comment', CommentController::class, );
+    Route::post('/comment/{idPost}', [CommentController::class, 'store']);
+    Route::put('/comment/{comment}', [CommentController::class, 'update']);
+    Route::delete('/comment/{comment}', [CommentController::class, 'destroy']);
+
+
 });
 
