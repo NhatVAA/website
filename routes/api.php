@@ -8,8 +8,7 @@ use Laravel\Sanctum\Sanctum;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\PostController;
-
-
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,13 +24,13 @@ use App\Http\Controllers\PostController;
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
+//
 Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+// Group middleware authed (yêu cầu người dùng phải đăng nhập rồi)
 Route::group(['middleware' => ['auth:sanctum']] , function () 
 {
-    Route::get('/profile', function(Request $request) { 
-        return auth()->user();
-    });
+    Route::apiResource('/profile', ProfileController::class, );
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::apiResource('/post', PostController::class, );
 });
