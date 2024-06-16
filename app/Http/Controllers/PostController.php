@@ -20,11 +20,11 @@ class PostController extends Controller
      */
     public function index()
     {
-        $post = Post::with('photos','videos','comments', 'likes')->latest()->get();
+        $post = Post::with('photos','videos','comments', 'likes')->where('privacy',0)->latest()->get();
         $arr = [
             'status' => true,
             'message' => 'danh sách các bài viết',
-            'data' => Post::collection($post),
+            'data' => $post->toArray(),
         ];
         return response()->json($arr,200);
     }
@@ -283,7 +283,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        $post = $post->with('photos','videos','comments', 'likes',)->find($post);
+        $post = $post->with('photos','videos','comments', 'likes',)->where('privacy',0)->find($post);
 
         if(is_null($post))
             {
@@ -299,14 +299,14 @@ class PostController extends Controller
             $arr = [
                 'success' => True,
                 'message' => 'Chi tiết bài viết',
-                'data' => $post,
+                'data' => $post->toArray(),
                 ];
             return response()->json($arr,200);    
         }  
         
     }
 
-    
+
     /**
      * Update the specified resource in storage.
      */
