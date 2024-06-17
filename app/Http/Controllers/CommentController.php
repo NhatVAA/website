@@ -83,7 +83,7 @@ class CommentController extends Controller
         //
         $input = $request->all();
         $validator = Validator::make($input,[
-            'content' => 'required'
+            'content' => 'required',
         ]);
         if($validator->fails())
         {

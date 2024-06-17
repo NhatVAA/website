@@ -32,5 +32,9 @@ class Post extends Model
     {
         return $this->hasMany(Like::class, "id_Post");
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class  );
+    }
 
 }

@@ -291,7 +291,7 @@ class PostController extends Controller
     public function show(Post $post)
     {
         $post = $post->with('photos','videos','comments', 'likes',)->find($post);
-
+        $name = User::select('name')where('id', $id )->get();
         if(is_null($post))
             {
                 $arr = [
@@ -308,6 +308,7 @@ class PostController extends Controller
                 'message' => 'Chi tiết bài viết',
                 'data' => postResource::collection($post),
                 ];
+
             return response()->json($arr,200);    
         }  
         

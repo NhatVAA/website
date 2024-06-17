@@ -10,7 +10,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CommentController;
-
+use App\Http\Controllers\LikeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,7 +39,7 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     Route::post('/comment/{idPost}', [CommentController::class, 'store']);
     Route::put('/comment/{comment}', [CommentController::class, 'update']);
     Route::delete('/comment/{comment}', [CommentController::class, 'destroy']);
-
+    Route::post('/like/{postId}', [LikeController::class, 'store']);
 
 });
 
