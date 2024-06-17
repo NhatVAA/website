@@ -283,8 +283,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        $post = $post->with('photos','videos')->find($post);
-
+        $post = Post::with('photos' ,'videos' )->find($post);
         if(is_null($post))
             {
                 $arr = [
