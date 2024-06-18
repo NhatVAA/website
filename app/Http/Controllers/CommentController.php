@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Post;
+use App\Models\Comment;
+
 
 class CommentController extends Controller
 {
@@ -39,16 +41,21 @@ class CommentController extends Controller
         $commentData = request()->validate([
             'content' => 'required|string',
         ]);
-        
-        if ($commentData->fails()) 
-        {
-            $arr = [              
-                    'status' => false,
-                    'message' => 'Thông tin chưa chính xác' ,
-                    'data' => [$commentData->errors()],
-            ];
-            return response()->json($arr,404);
-        }
+        $userId = auth()->user()->id;
+        $commentData = [
+            'content' => request()->all(),
+            'id_User' => $userId,
+        ];
+
+        // if ($commentData->fails()) 
+        // {
+        //     $arr = [              
+        //             'status' => false,
+        //             'message' => 'Thông tin chưa chính xác' ,
+        //             'data' => [$commentData->errors()],
+        //     ];
+        //     return response()->json($arr,404);
+        // }
         $comment = new Comment($commentData);
         $post->comments()->save($comment);
 
@@ -74,16 +81,41 @@ class CommentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Comment $comment)
     {
-        //
+        $input = $request->content;
+        $validator = Validator::make($input,[
+            'content' => 'required|String',
+        ]);
+        if($validator->fails())
+        {
+            $arr = [
+                'status' => false,
+                'message' => 'Lỗi thông tin xin nhập lại',
+                'data' => $validator->errors(),
+            ];
+            return response()->json($arr,404);
+        }
+        $comment->save($input);
+        $arr = [
+            'status' => false,
+            'message' => 'Lỗi thông tin xin nhập lại',
+            'data' => $comment,
+        ];
+        return response()->json($arr,200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Comment $comment)
     {
-        //
+        $comment->delete();
+        $arr = [
+            'status' => true,
+            'message' => 'Bình luận đã được xóa',
+            'data' => [],
+        ];
+        return response()->json($arr,200);
     }
 }

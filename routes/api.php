@@ -35,6 +35,7 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     Route::apiResource('/profile', ProfileController::class, );
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::apiResource('/post', PostController::class, );
-    Route::apiResource('/comment', CommentController::class, );
+    Route::apiResource('/comment/{idPost}', CommentController::class, );
+    Route::post('/like/{postId}', [LikeController::class, 'store']);
 });
 
