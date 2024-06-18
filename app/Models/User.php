@@ -26,6 +26,8 @@ class User extends Authenticatable
         'phoneNumber',
         'birth',
         'gender',
+        'avatar',
+        'coverimage',
     ];
 
     /**
@@ -51,5 +53,9 @@ class User extends Authenticatable
     public function likes()
     {
         return $this->hasMany(Like::class  );
+    }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class  );
     }
 }

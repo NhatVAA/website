@@ -38,7 +38,7 @@ class PostController extends Controller
         - content(string): caption của bài viết
         - privacy(int): 0 cho chế độ công khai, 1 cho chế độ chỉ mình tôi
         - photoUrl[](array): là một mảng chứa các file hình
-        - 
+        - videoUrl[](array): là một mảng chứa các file video
     */
     public function store(Request $request)
     {
@@ -290,8 +290,8 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        $post = $post->with('photos','videos','comments', 'likes',)->find($post);
-        $name = User::select('name')where('id', $id )->get();
+        $post = $post->with('photos','videos','comments', 'likes',)->find($post)->where('privacy',0);
+        // $name = User::select('name')where('id', $id )->get();
         if(is_null($post))
             {
                 $arr = [

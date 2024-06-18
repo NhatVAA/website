@@ -11,7 +11,7 @@ use App\Models\Like;
 
 class LikeController extends Controller
 {
-    //
+    // Hàm thực hiện Like / Hủy Like
     public function store($postId){
         $post = Post::find($postId);
         if (!$post) {

@@ -26,20 +26,39 @@ use App\Http\Controllers\LikeController;
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
-//
+
+// route đăng ký
 Route::post('/register', [RegisterController::class, 'register']);
+// route đăng nhập 
 Route::post('/login', [AuthController::class, 'login']);
+
 // Group middleware authed (yêu cầu người dùng phải đăng nhập rồi)
 Route::group(['middleware' => ['auth:sanctum']] , function () 
 {
-    Route::apiResource('/profile', ProfileController::class, );
+    // route đăng xuất
     Route::post('/logout', [AuthController::class, 'logout']);
+    // route CRUD cho profile (Create, Read, Update, Delete)
+    Route::apiResource('/profile', ProfileController::class, );
+    // route CRUD cho post (Create, Read, Update, Delete)
     Route::apiResource('/post', PostController::class, );
-    // Route::apiResource('/comment', CommentController::class, );
-    Route::post('/comment/{idPost}', [CommentController::class, 'store']);
-    Route::put('/comment/{comment}', [CommentController::class, 'update']);
-    Route::delete('/comment/{comment}', [CommentController::class, 'destroy']);
-    Route::post('/like/{postId}', [LikeController::class, 'store']);
 
+    // *** phần Comment ***
+    // Route::apiResource('/comment', CommentController::class, );
+    // Lấy ra các Comment của bài viết (với Id bài viết)
+    // ...
+    // Thêm Comment vào bài viết (với Id bài viết)
+    Route::post('/comment/{idPost}', [CommentController::class, 'store']);
+    // Sửa Comment (với Id của Comment)
+    Route::put('/comment/{comment}', [CommentController::class, 'update']);
+    // Xóa Comment (với Id của Comment)
+    Route::delete('/comment/{comment}', [CommentController::class, 'destroy']);
+    // *** hết phần Comment ***
+
+    // *** phần Like ***
+    // Lấy ra các Like của bài viết (với Id bài viết)
+    // ...
+    // Thêm Like / Bỏ Like cho bài viết (với Id bài viết)
+    Route::post('/like/{postId}', [LikeController::class, 'store']);
+    // *** hết phần Like ***
 });
 
