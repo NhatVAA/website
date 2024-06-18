@@ -13,7 +13,6 @@ class Like extends Model
     protected $fillable = [
         'id_Post',
         'id_User',
-        'content',
     ];
 
     public function post()

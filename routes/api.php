@@ -11,6 +11,8 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\StoryController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -60,5 +62,8 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     // Thêm Like / Bỏ Like cho bài viết (với Id bài viết)
     Route::post('/like/{postId}', [LikeController::class, 'store']);
     // *** hết phần Like ***
+    // route cho Story
+    Route::apiResource('/story', StoryController::class, );
+    // Route::get('/story', [StoryController::class, 'Storyuse']);
 });
 

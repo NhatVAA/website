@@ -81,6 +81,7 @@ class CommentController extends Controller
     public function update(Request $request,Comment $comment)
     {
         //
+        $idUser = auth()->user(); 
         $input = $request->all();
         $validator = Validator::make($input,[
             'content' => 'required',
@@ -93,6 +94,9 @@ class CommentController extends Controller
                 'data' => $validator->errors(),
             ];
             return response()->json($arr,404);
+        }
+        elseif ($idUser->id !== $post->id_User) {
+            return response()->json(['error' => 'Unauthorized to edit this post'], 403);
         }
         $comment -> content = $input['content'];
         $comment->save();
@@ -110,6 +114,16 @@ class CommentController extends Controller
     public function destroy(Comment $comment)
     {
         //
+        $idUser = auth()->user();
+        $idUser1 = $idUser->id ;
+        $comment = Comment::all()->find($comment);
+        $id_Post = $comment->id_Post;
+        $id_User = $comment->id_User;
+        $post = $comment->post;
+        if ($idUser1 !== $id_User && $idUser1 !== $post->id_User) {
+            return response()->json(['error' => 'Unauthorized to delete this comment'], 403);
+        }
+
         $comment->delete();
         $arr = [
             'status' => true,

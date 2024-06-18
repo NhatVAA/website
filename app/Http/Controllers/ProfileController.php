@@ -43,6 +43,7 @@ class ProfileController extends Controller
             ], 404);
         }
     }
+    
 
     /**
      * Show the form for creating a new resource.

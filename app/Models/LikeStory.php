@@ -5,20 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Photo extends Model
+class LikeStory extends Model
 {
     use HasFactory;
 
-    protected $table = 'photo';
+    protected $table = 'likestory';
     protected $fillable = [
-        'id_Post',
         'id_Story',
-        'photoUrl',
+        'id_User',
     ];
 
-    public function post()
+    public function story()
     {
-        return $this->belongsTo(Post::class  );
+        return $this->belongsTo(Story::class );
     }
 }
-
