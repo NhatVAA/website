@@ -7,50 +7,56 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use App\Models\Post;
+use App\Models\Story;
 use App\Models\Photo;
 use App\Models\Video;
-use App\Http\Resources\post as postResource;
+use App\Models\LikeStory;
+use App\Http\Resources\story as storyResource;
 
-class PostController extends Controller
+class StoryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $post = Post::with('photos','videos','comments', 'likes')->where('privacy',0)->latest()->get();
+        $story = Story::with('photos','videos','likestorys')->where('privacy',0)->latest()->get();
+        $id = auth()->user()->id ;
+        $storyUse = Story::with('photos','videos','likestorys')->where('id_User',$id)->latest()->get();
         $arr = [
             'status' => true,
-            'message' => 'danh sách các bài viết',
-            // 'data' => $post->toArray(),
-            'data' => postResource::collection($post),
+            'message' => 'danh sách các story',
+            'data' => [
+                'All' => storyResource::collection($story),
+                'of' => storyResource::collection($storyUse),
+                // 'of' => $storyUse,
+            ]
         ];
         return response()->json($arr,200);
     }
-    //chua text
-    public function baivietprofile($id = 0)
+
+    public function Storyuse($id = 0)
     {
-        $post = Post::with('photos','videos','comments', 'likes')->where('id_User',$id)->latest()->get();
+        $id = auth()->user()->id ;
+        $story = Story::with('photos','videos','likestorys')->where('id_User',$id)->latest();
         $arr = [
             'status' => true,
-            'message' => 'danh sách các bài viết',
-            // 'data' => $post->toArray(),
-            'data' => postResource::collection($post),
+            'message' => 'danh sách các story',
+            'data' => storyResource::collection($story),
         ];
         return response()->json($arr,200);
+    }
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    /*
-        Hàm xử lý đăng bài viết:
-        - content(string): caption của bài viết
-        - privacy(int): 0 cho chế độ công khai, 1 cho chế độ chỉ mình tôi
-        - photoUrl[](array): là một mảng chứa các file hình
-        - 
-    */
     public function store(Request $request)
     {
         $input = $request->all();
@@ -58,7 +64,6 @@ class PostController extends Controller
         {
             $validator = Validator::make($input, 
             [
-                'content' => 'required|string|max:100',
                 'privacy'=> 'required',
             ]);
 
@@ -74,15 +79,14 @@ class PostController extends Controller
             $user = Auth::user(); // Lấy thông tin người dùng đã đăng nhập
             $input1 = 
                 [   
-                    'content' => $request->input('content'),
                     'privacy' => $request->input('privacy'),
                     'id_User' => $user->id,
                 ];
-            $post = Post::create($input1);
+            $story = Story::create($input1);
             $arr = [              
                 'status' => true,
                 'message' => 'Tạo bài viết thành công' ,
-                'data' => new postResource($post),
+                'data' => new storyResource($story),
             ];
             return response()->json($arr, 200);
         }
@@ -91,7 +95,6 @@ class PostController extends Controller
             {
                 $validator = Validator::make($input, 
                     [
-                        'content' => 'required|string|max:100',
                         'privacy'=> 'required',
                         'photoUrl' => 'required|file|image|max:2048|mimes:jpeg,png,jpg,gif',
                         'photoUrl' => 'required|array|max:5', // Limit to 5 files
@@ -108,7 +111,6 @@ class PostController extends Controller
                     $user = Auth::user(); // Lấy thông tin người dùng đã đăng nhập
                     $input1 = 
                         [   
-                            'content' => $request->input('content'),
                             'privacy' => $request->input('privacy'),
                             'id_User' => $user->id,
                         ];
@@ -120,7 +122,7 @@ class PostController extends Controller
                     $photos = [];
                     // DB::transaction(function () use ($input1, $input2) 
                     //     {
-                    $post = Post::create($input1);                           
+                    $story = Story::create($input1);                           
                             // $input2['id_Post'] = $post['id'];
                             foreach ($request->file('photoUrl') as $imageFile) {
                                 $fileName = $imageFile->getClientOriginalName();
@@ -133,7 +135,7 @@ class PostController extends Controller
                         
                                     $input2 = [
                                         'photoUrl' => $imageUrl,
-                                        'id_Post' => $post['id'],
+                                        'id_Story' => $story['id'],
                                     ];
                         
                                     $photo = Photo::create($input2);
@@ -150,7 +152,7 @@ class PostController extends Controller
                                 'status' => true,
                                 'message' => 'Tạo bài viết thành công',
                                 'data' => [
-                                    'post' => $post,
+                                    'story' => $story,
                                     'photos' => $photos,
                                 ]
                             ];
@@ -162,7 +164,6 @@ class PostController extends Controller
                 {
                     $validator = Validator::make($input, 
                         [
-                            'content' => 'required|string|max:100',
                             'privacy'=> 'required',
                             'videoUrl' => 'required|file|mimes:mp4,avi,mov,wmv',
                             'videoUrl' => 'required|array|max:5', // Limit to 5 files
@@ -180,11 +181,10 @@ class PostController extends Controller
 
                         $input1 = 
                             [   
-                                'content' => $request->input('content'),
                                 'privacy' => $request->input('privacy'),
                                 'id_User' => $user->id,
                             ];
-                        $post = Post::create($input1);
+                        $story = Story::create($input1);
 
                         $videos = [];
                         foreach ($request->file('videoUrl') as $videoFile) {
@@ -192,13 +192,13 @@ class PostController extends Controller
                             $fileName = $videoFile->getClientOriginalName();
                             $fileExtension = $videoFile->getClientOriginalExtension();
                             $newFileName = uniqid() . '.' . $fileExtension;                                             
-                            $videoFile->move(public_path('uploads/video'), $newFileName);// Store the image file in the filesystem
-                            $videoUrl = asset('uploads/video/' . $newFileName);// Generate the image URL
+                            $videoFile->move(public_path('uploads/videostory'), $newFileName);// Store the image file in the filesystem
+                            $videoUrl = asset('uploads/videostory/' . $newFileName);// Generate the image URL
         
                             $input2 = 
                                 [
                                     'videoUrl' =>  $videoUrl,
-                                    'id_Post' => $post['id'],
+                                    'id_Story' => $story['id'],
                                 ];
                             $video = Video::create($input2);
                             $videos[] = $video;       
@@ -207,7 +207,7 @@ class PostController extends Controller
                             'status' => true,
                             'message' => 'Tạo bài viết thành công' ,
                             'data' => [
-                                    'post' => $post,
+                                    'story' => $story,
                                     'videos' => $videos,
                             ]
                             ];
@@ -217,7 +217,6 @@ class PostController extends Controller
                     {
                         $validator = Validator::make($input, 
                         [
-                            'content' => 'required|string|max:100',
                             'privacy'=> 'required',
                             'photoUrl' => 'required|file|image|max:2048|mimes:jpeg,png,jpg,gif',
                             'photoUrl' => 'required|array|max:5', // Limit to 5 files
@@ -236,11 +235,10 @@ class PostController extends Controller
                         $user = Auth::user(); // Lấy thông tin người dùng đã đăng nhập                
                         $input1 = 
                             [   
-                                'content' => $request->input('content'),
                                 'privacy' => $request->input('privacy'),
                                 'id_User' => $user->id,
                             ];               
-                        $post = Post::create($input1);
+                        $story = Story::create($input1);
 
                         $photos = [];
                                 foreach ($request->file('photoUrl') as $imageFile) {
@@ -254,7 +252,7 @@ class PostController extends Controller
                             
                                         $input2 = [
                                             'photoUrl' => $imageUrl,
-                                            'id_Post' => $post['id'],
+                                            'id_Story' => $story['id'],
                                         ];
                             
                                         $photo = Photo::create($input2);
@@ -272,13 +270,13 @@ class PostController extends Controller
                                     $fileName = $videoFile->getClientOriginalName();
                                     $fileExtension = $videoFile->getClientOriginalExtension();
                                     $newFileName = uniqid() . '.' . $fileExtension;                                             
-                                    $videoFile->move(public_path('uploads/video'), $newFileName);// Store the image file in the filesystem
-                                    $videoUrl = asset('uploads/video/' . $newFileName);// Generate the image URL
+                                    $videoFile->move(public_path('uploads/videostory'), $newFileName);// Store the image file in the filesystem
+                                    $videoUrl = asset('uploads/videostory/' . $newFileName);// Generate the image URL
                 
                                     $input2 = 
                                         [
                                             'videoUrl' =>  $videoUrl,
-                                            'id_Post' => $post['id'],
+                                            'id_Story' => $story['id'],
                                         ];
                                     $video = Video::create($input2);
                                     $videos[] = $video;       
@@ -287,26 +285,26 @@ class PostController extends Controller
                             'status' => true,
                             'message' => 'Tạo bài viết thành công' ,
                             'data' => [
-                                'post' =>$post,
+                                'story' =>$story,
                                 'photos' => $photos,
                                 'videos' => $videos,
                             ]
                             ];
                         return response()->json($arr, 200);
                     }
-    }  
+    }
 
     /**
      * Display the specified resource.
      */
-    public function show(Post $post)
+    public function show(Story $story)
     {
-        $post = $post->with('photos','videos','comments', 'likes',)->where('privacy',0)->find($post);
-        if(is_null($post))
+        $story = $story->with('photos','videos','likestorys',)->where('privacy',0)->find($story);
+        if(is_null($story))
             {
                 $arr = [
                     'success' => false,
-                    'message' => 'Không có bài viết này',
+                    'message' => 'Không có story này',
                     'data' => [],
                     ];
                 return response()->json($arr,404);        
@@ -316,24 +314,23 @@ class PostController extends Controller
             $arr = [
                 'success' => True,
                 'message' => 'Chi tiết bài viết',
-                'data' => postResource::collection($post),
+                'data' => storyResource::collection($story),
                 ];
 
             return response()->json($arr,200);    
         }  
-        
     }
+
 
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Post $post)
+    public function update(Request $request, Story $story)
     {
         $idUser = auth()->user(); 
         $input = $request->all();
         $validator = Validator::make($input,[
-            'content' => 'required',
             'privacy' => 'required',
         ]);
         if($validator -> fails())
@@ -345,56 +342,53 @@ class PostController extends Controller
                 ];
                 return response()->json($arr,400);
             }
-        elseif ($idUser->id !== $post->id_User) {
-            return response()->json(['error' => 'Unauthorized to edit this post'], 403);
+        elseif ($idUser->id !== $story->id_User) {
+            return response()->json(['error' => 'Unauthorized to edit this story'], 403);
         }
         else
             {
-                $post -> content = $input['content'];
-                $post -> privacy = $input['privacy'];
-                $post -> save();
+                $story -> privacy = $input['privacy'];
+                $story -> save();
                 $arr = [
                     'status' => true,
                     'message' => 'Sửa bài viết thành công',
-                    'data' => new postResource($post),
+                    'data' => new storyResource($story),
                 ];
                 return response()->json($arr,200);
             }
-
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Post $post)
+    public function destroy(Story $story)
     {
         try {
             $idUser = auth()->user();
-            if ($idUser->id !== $post->id_User) {
-                return response()->json(['error' => 'Unauthorized to destroy this post'], 403);
+            if ($idUser->id !== $story->id_User) {
+                return response()->json(['error' => 'Unauthorized to destroy this story'], 403);
             } 
-            foreach ($post->photos as $image) {
+            foreach ($story->photos as $image) {
                 $imageUrl = $image->photoUrl;
                 $pathUrl = parse_url($imageUrl);
                 $filename = basename($pathUrl['path']);
 
-                unlink(public_path('/uploads/image/' . $filename));
+                unlink(public_path('/uploads/imagestorys/' . $filename));
                 }
                 
-                $post->photos()->delete();    
+                $story->photos()->delete();    
 
-            foreach ($post->videos as $video) {
+            foreach ($story->videos as $video) {
     
                 $videoUrl = $video->videoUrl;
                 $pathUrl = parse_url($videoUrl);
                 $filename = basename($pathUrl['path']);
     
-                unlink(public_path('/uploads/video/' . $filename));
+                unlink(public_path('/uploads/videostorys/' . $filename));
                 }
-                $post->videos()->delete();
-                $post->comments()->delete();
-                $post->likes()->delete();
-                $post->delete();
+                $story->videos()->delete();
+                $story->likestorys()->delete();
+                $story->delete();
             $arr = [
                 'status' => true,
                 'message' => 'Bài viết đã được xoá',
@@ -411,21 +405,6 @@ class PostController extends Controller
                             'data' => [],
                         ];
                         return response()->json($arr,404);
-        }      
-    //     $post = Post::with('images', 'videos')->findOrFail($post);
-
-    // $post->delete();
-
-    // foreach ($post->images as $image) {
-    //     $image->delete();
-    //     unlink(storage_path('app/public/image/' . $image->path));
-    // }
-
-    // foreach ($post->videos as $video) {
-    //     $video->delete();
-    //     unlink(storage_path('app/public/video/' . $video->path));
-    // }
-
-    // return response()->json(['message' => 'Post deleted successfully']);
     }
+}
 }

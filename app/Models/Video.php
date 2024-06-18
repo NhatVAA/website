@@ -11,12 +11,12 @@ class Video extends Model
 
     protected $table = 'video';
     protected $fillable = [
-        'idPost',
-        'idStory',
+        'id_Post',
+        'id_Story',
         'videoUrl',
     ];
     
-    public function posts()
+    public function post()
     {
         return $this->belongsTo(Post::class );
     }

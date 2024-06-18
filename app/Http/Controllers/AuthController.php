@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
 
-
-
 class AuthController extends Controller
 {
     public function __construct(){
@@ -44,7 +42,9 @@ class AuthController extends Controller
             $arr = [
                 'success' => True,
                 'message' => 'Chào '.$user->name.'',
-                'data' => ['access_token' => $token, 'token_type' => 'Bearer'],
+                'data' => [
+                        'name' => $user->name ,
+                        'access_token' => $token, 'token_type' => 'Bearer'],
             ];
             return response()->json($arr,200);
         }
@@ -58,15 +58,6 @@ class AuthController extends Controller
             
         
     }
-    // public function logout(Request $request){
-    //     Auth::logout();
- 
-    //     $request->session()->invalidate();
-     
-    //     $request->session()->regenerateToken();
-     
-    //     return redirect()->route('auth.admin');
-    // }
     public function logout()  {
         auth()->user()->tokens()->delete();
         $arr = [
