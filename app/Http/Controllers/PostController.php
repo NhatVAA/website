@@ -138,7 +138,7 @@ class PostController extends Controller
                         
                                     $photo = Photo::create($input2);
                                     $photos[] = $photo;
-                                } catch (Exception $e) {
+                                } catch (\Exception $e) {
                                     return response()->json([
                                         'status' => false,
                                         'message' => 'Error uploading image: ' . $e->getMessage()
@@ -259,7 +259,7 @@ class PostController extends Controller
                             
                                         $photo = Photo::create($input2);
                                         $photos[] = $photo;
-                                    } catch (Exception $e) {
+                                    } catch (\Exception $e) {
                                         return response()->json([
                                             'status' => false,
                                             'message' => 'Error uploading image: ' . $e->getMessage()

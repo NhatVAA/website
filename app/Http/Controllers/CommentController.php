@@ -82,6 +82,7 @@ class CommentController extends Controller
     {
         //
         $idUser = auth()->user(); 
+        $commentOfUser = Comment::all()->where('id', $comment)->get('id_User');
         $input = $request->all();
         $validator = Validator::make($input,[
             'content' => 'required',
@@ -95,8 +96,9 @@ class CommentController extends Controller
             ];
             return response()->json($arr,404);
         }
-        elseif ($idUser->id !== $post->id_User) {
-            return response()->json(['error' => 'Unauthorized to edit this post'], 403);
+        // $idUser->id !== $post->id_User
+        elseif ($idUser->id !== $commentOfUser) {
+            return response()->json(['error' => 'Unauthorized to edit this post' ], 403);
         }
         $comment -> content = $input['content'];
         $comment->save();

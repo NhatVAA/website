@@ -39,6 +39,8 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
 {
     // route đăng xuất
     Route::post('/logout', [AuthController::class, 'logout']);
+    // route refresh token
+    Route::post('/refresh', [AuthController::class, 'refresh']);
     // route CRUD cho profile (Create, Read, Update, Delete)
     Route::apiResource('/profile', ProfileController::class, );
     // route CRUD cho post (Create, Read, Update, Delete)

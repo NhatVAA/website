@@ -9,6 +9,7 @@ use App\Http\Requests\AuthRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Http\Resources\user as userResource;
+use App\Models\Friendship;
 use App\Models\Post;
 use Exception;
 
@@ -24,7 +25,11 @@ class ProfileController extends Controller
         if((auth()->user()) != null){
             $idUser = auth()->user()->id;
             $userInfo = User::all()->find($idUser); // thông tin của User đang đăng nhập 
-            $userPost = Post::with('photos','videos','comments', 'likes',)->where('idUser',$idUser)->get(); // các bài viết của User đang đăng nhập
+            $userPost = Post::with('photos','videos','comments', 'likes',)->where('id_User',$idUser)->get(); // các bài viết của User đang đăng nhập
+            $userFriend = Friendship::where(function ($query) use ($idUser) {
+                $query->where('id_User', $idUser)
+                      ->orWhere('id_friend', $idUser);
+            })->where('status', 1)->get();
 
             $arr = [
                 'status' => true,
@@ -32,6 +37,7 @@ class ProfileController extends Controller
                 'data' => [
                     'user' => $userInfo,
                     'posts' => $userPost,
+                    'friends' => $userFriend,
                 ],
             ];
             return response()->json($arr, 200);
@@ -64,14 +70,18 @@ class ProfileController extends Controller
     /**
      * Display the specified resource.
      */
-    // Hàm trả về dữ liệu cá nhân với Id_User truyền vào
+    // Hàm trả về dữ liệu cá nhân (với Id_User truyền vào)
     public function show(string $id)
     {
         //
         $userInfo = User::all()->find($id); // thông tin của user có ID đc truyền vào
         $userPost = Post::with('photos','videos','comments', 'likes',)->where('idUser',$id)->where('privacy',0)->get(); // các bài viết công khai của user có ID đc truyền vào
-
-        
+        // danh sách bạn bè của user có ID đc truyền vào
+        $userFriend = Friendship::where(function ($query) use ($id) {
+            $query->where('id_User', $id)
+                  ->orWhere('id_friend', $id);
+        })->where('status', 1)->get();
+        //
         if(is_null($userInfo)){
             $arr = [
                 'status' => false,
@@ -87,6 +97,7 @@ class ProfileController extends Controller
                 'data' => [
                     'user' => $userInfo,
                     'posts' => $userPost,
+                    'friends' => $userFriend,
                 ],
             ];
             return response()->json($arr, 200);
@@ -108,6 +119,14 @@ class ProfileController extends Controller
     public function update(Request $request, string $id)
     {
         $userId = $id;
+        if($userId != (auth()->user()->id)){
+            $arr = [
+                'status' => false,
+                'message' => 'Bạn không có quyền chỉnh sửa trang cá nhân người dùng khác!',
+                'data' => [],
+            ];
+            return response()->json($arr, 400);
+        }
         $user = User::find($userId);
         //
         if(is_null($user)){
