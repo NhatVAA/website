@@ -43,8 +43,10 @@ class AuthController extends Controller
                 'success' => True,
                 'message' => 'Chào '.$user->name.'',
                 'data' => [
-                        'name' => $user->name ,
-                        'access_token' => $token, 'token_type' => 'Bearer'],
+                    'access_token' => $token, 
+                    'token_type' => 'Bearer',
+                    'user' => $user,
+                ],
             ];
             return response()->json($arr,200);
         }

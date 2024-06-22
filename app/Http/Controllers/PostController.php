@@ -49,7 +49,7 @@ class PostController extends Controller
         - content(string): caption của bài viết
         - privacy(int): 0 cho chế độ công khai, 1 cho chế độ chỉ mình tôi
         - photoUrl[](array): là một mảng chứa các file hình
-        - 
+        - videoUrl[](array): là một mảng chứa các file video
     */
     public function store(Request $request)
     {

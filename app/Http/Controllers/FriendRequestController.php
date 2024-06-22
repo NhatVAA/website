@@ -9,6 +9,7 @@ use App\Http\Resources\friend as friendResource;
 
 class FriendRequestController extends Controller
 {
+    // hàm gửi lời mời kết bạn
     public function sendFriendRequest(Request $request, $userId)
     {
         $id_User = Auth::user();
@@ -101,6 +102,8 @@ class FriendRequestController extends Controller
         return response()->json($arr, 200);
     }
 
+
+    // hàm từ chối kết bạn
     public function declineFriendRequest(Request $request, $userId)
     {
         $currentUser = Auth::user();
@@ -144,6 +147,7 @@ class FriendRequestController extends Controller
         return response()->json($arr, 200);
     }
 
+    // hàm lấy ra danh sách bạn bè
     public function getFriendsList(Request $request)
     {
         $id_User = Auth::user();

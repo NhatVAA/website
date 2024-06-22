@@ -7,6 +7,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Laravel\Sanctum\HasApiTokens;
 
 
@@ -26,6 +27,8 @@ class User extends Authenticatable
         'phoneNumber',
         'birth',
         'gender',
+        'avatar',
+        'coverimage',
     ];
 
     /**
@@ -67,12 +70,14 @@ class User extends Authenticatable
     {
         return $this->friends->contains($user);
     }
-
-    
-    // public function pendingFriends(): BelongsToMany
+    // public function pendingFriends():BelongsToMany
     // {
-    //     $pendingFriends = $this->belongsToMany(User::class, 'friendship', 'id_User', 'id_friend')
+    //     $pendingFriends = $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')
     //         ->wherePivot('status', 'pending');
     //     return $pendingFriends;
     // }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class  );
+    }
 }
