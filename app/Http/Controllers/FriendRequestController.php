@@ -5,33 +5,59 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\friend as friendResource;
 
 class FriendRequestController extends Controller
 {
     public function sendFriendRequest(Request $request, $userId)
     {
-        $currentUser = Auth::user();
-        $recipientUser = User::find($userId);
+        $id_User = Auth::user();
+        $id_friend = User::find($userId);
 
         // Kiểm tra người dùng hiện tại và người nhận có phải là bạn bè hay không
-        if ($currentUser->isFriendsWith($recipientUser)) {
-            return response()->json([
-                'message' => 'Bạn đã là bạn bè với người dùng này.',
-            ], 400);
+        if ($id_User->isFriendsWith($id_friend)) {
+            $arr =  [
+                'status' => false,
+                'message' => 'Bạn đã là bạn bè với '.$id_friend -> name,
+                'data' => [
+                    'id' => $id_friend -> id,
+                    'name' => $id_friend -> name,
+                ]
+            ];
+            return response()->json($arr, 400);
         }
 
+        $friendRequest = $id_User->sentFriendRequests()->where('id_friend', $userId)->first();
+        if ($friendRequest) {
+            $arr =  [
+                'status' => false,
+                'message' => 'Bạn đã gửi lời mời tới '.$id_friend -> name. ' rồi',
+                'data' => [
+                    'id' => $id_friend -> id,
+                    'name' => $id_friend -> name,
+                ]
+            ];
+            return response()->json($arr, 404);
+        }
+        else{
         // Gửi yêu cầu kết bạn
-        $currentUser->friendRequests()->attach($recipientUser->id);
-
-        return response()->json([
-            'message' => 'Yêu cầu kết bạn đã được gửi thành công.',
-        ], 200);
+        $id_User->sentFriendRequests()->attach($id_friend->id);
+        $arr =  [
+            'status' => true,
+            'message' => 'Đã gửi lời mời đến '.$id_friend -> name.' thành công',
+            'data' => [
+                'id' => $id_friend -> id,
+                'name' => $id_friend -> name,
+            ]
+        ];
+        return response()->json($arr, 200);
+        }
     }
 
     public function acceptFriendRequest(Request $request, $userId)
     {
         $currentUser = Auth::user();
-        $friendRequest = $currentUser->friendRequests()->where('friend_id', $userId)->first();
+        $friendRequest = $currentUser->sentFriendRequests()->where('id_friend', $userId)->first();
 
         if (!$friendRequest) {
             return response()->json([
@@ -41,113 +67,180 @@ class FriendRequestController extends Controller
 
         // Chấp nhận yêu cầu kết bạn
         $friendRequest->pivot->update(['status' => 'accepted']);
-
-        return response()->json([
-            'message' => 'Yêu cầu kết bạn đã được chấp nhận.',
-        ], 200);
+        $arr =  [
+            'status' => true,
+            'message' => $friendRequest -> name.'là bạn bè của bạn',
+            'data' => [
+                'id' => $friendRequest -> id,
+                'name' => $friendRequest -> name,
+            ]
+        ];
+        return response()->json($arr, 200);
     }
+    // Xoá bạn bè
+    public function unfriend($userId)
+    {
+        $currentUser = Auth::user();
+        $recipientUser = User::find($userId);
+        // Kiểm tra xem người dùng có tồn tại hay không
+        if (!$recipientUser ) {
+            return response()->json(['error' => 'Người dùng không tồn tại'], 404);
+        }
+
+        // Kiểm tra xem người dùng có phải là bạn của nhau hay không
+        if (!$currentUser->isFriendsWith($recipientUser)) {
+            return response()->json(['error' => 'Bạn không phải là bạn bè của người dùng này'], 400);
+        }
+        // Xóa bạn bè
+        $currentUser->friends()->detach($userId);
+        $arr =  [
+            'status' => true,
+            'message' => 'Huỷ kết bạn thành công',
+            'data' => [],
+        ];
+        return response()->json($arr, 200);
+    }
+
     public function declineFriendRequest(Request $request, $userId)
     {
         $currentUser = Auth::user();
-        $friendRequest = $currentUser->friendRequests()->where('friend_id', $userId)->first();
+        $friendRequest = $currentUser->friendRequests()->where('id_friend', $userId)->first();
 
+        if (!$friendRequest) {
+            $arr =  [
+                'status' => false,
+                'message' => 'Yêu cầu kết bạn không được tìm thấy',
+                'data' => [],
+            ];
+            return response()->json($arr, 404);
+        }
+
+        // Từ chối yêu cầu kết bạn
+        $currentUser->friendRequests()->detach($userId);
+        $arr =  [
+            'status' => true,
+            'message' => 'Từ chối yêu cầu kết bạn thành công',
+            'data' => [],
+        ];
+        return response()->json($arr, 200);
+    }
+
+    public function declinesendFriendRequest(Request $request, $userId)
+    {
+        $currentUser = Auth::user();
+        $friendRequest = $currentUser->sentFriendRequests()->where('id_friend', $userId)->first();
         if (!$friendRequest) {
             return response()->json([
                 'message' => 'Yêu cầu kết bạn không được tìm thấy.',
             ], 404);
         }
-
-        // Từ chối yêu cầu kết bạn
-        $friendRequest->delete();
-
-        return response()->json([
-            'message' => 'Yêu cầu kết bạn đã bị từ chối.',
-        ], 200);
+        // Huỷ yêu cầu kết bạn
+        $currentUser->sentFriendRequests()->detach($userId);
+        $arr =  [
+            'status' => true,
+            'message' => 'Huỷ lời mời kết bạn thành công',
+            'data' => [],
+        ];
+        return response()->json($arr, 200);
     }
 
     public function getFriendsList(Request $request)
     {
-        $currentUser = Auth::user();
-        $friends = $currentUser->friends;
-
-        return response()->json([
-            'friends' => $friends->map(function ($friend) {
-                return [
-                    'id' => $friend->id,
-                    'name' => $friend->name,
-                    ];
-                }),
-            ], 200);
+        $id_User = Auth::user();
+        $friends = $id_User->friends;
+        $arr = [
+            'status' => true,
+            'message' => 'Danh sách bạn bè',
+            // 'data' => $friends->map(function ($friend) {
+            //     return [
+            //         'id' => $friend->id,
+            //         'name' => $friend->name,
+            //         'avatar' => $friend->avatar,
+            //         'updated_at' => $friend -> pivot ->updated_at->format('Y-m-d H:i:s'),
+            //         'created_at' => $friend -> pivot ->created_at->format('Y-m-d H:i:s'),
+            //         ];
+            //     }),
+            'data' => friendResource::collection($friends),
+        ];
+        return response()->json($arr, 200);
     }
 
     // Lấy danh sách yêu cầu kết bạn đã gửi (yêu cầu đi)
     public function getSentFriendRequests(Request $request)
     {
-        $currentUser = Auth::user();
-        $sentRequests = $currentUser->friendRequestsSent()->get();
+        $id_User = Auth::user();
+        $friendRequests = $id_User->sentFriendRequests()->get();
 
         // Biến đổi dữ liệu yêu cầu đã gửi (tùy chọn)
         // Bạn có thể sử dụng hàm map tương tự như getFriendsList để
         // tùy chỉnh cấu trúc dữ liệu của yêu cầu đã gửi
-        $transformedSentRequests = $sentRequests->map(function ($request) {
-            return [
-                'id' => $request->id,
-                'recipient' => [ // Thông tin người nhận
-                    'id' => $request->recipient->id,
-                    'name' => $request->recipient->name,
-                    // Bạn có thể thêm các thuộc tính khác
-                ],
-                'created_at' => $request->created_at,
-                'updated_at' => $request->updated_at,
-            ];
-        });
+        $arr = [
+            'status' => true,
+            'message' => 'Danh sách kết bạn đã gửi',
+            'data' => $friendRequests->map(function ($friend) {
+                return [
+                    'id' => $friend->id,
+                    'name' => $friend->name,
+                    'avatar' => $friend->avatar,
+                    'updated_at' => $friend -> pivot ->updated_at->format('Y-m-d H:i:s'),
+                    'created_at' => $friend -> pivot ->created_at->format('Y-m-d H:i:s'),
+                    // 'text' =>$friend,
+                ];
+            })
+        ];
 
-        return response()->json([
-            'sent_requests' => $transformedSentRequests,
-        ], 200);
+        return response()->json($arr, 200);
     }
 
      // Lấy danh sách yêu cầu kết bạn đang chờ (yêu cầu đến)
      public function getPendingFriendRequests(Request $request)
      {
-         $currentUser = Auth::user();
-         $pendingRequests = $currentUser->friendRequestsReceived()->where('status', 'pending')->get();
+         $id_User = Auth::user();
+         $friendRequests = $id_User->friendRequests()->where('status', 'pending')->get();
  
-         // Biến đổi dữ liệu yêu cầu đang chờ (tùy chọn)
-         // Bạn có thể sử dụng hàm map tương tự như getFriendsList để
-         // tùy chỉnh cấu trúc dữ liệu của yêu cầu đang chờ
-         $transformedPendingRequests = $pendingRequests->map(function ($request) {
-             return [
-                 'id' => $request->id,
-                 'sender' => [ // Thông tin người gửi
-                     'id' => $request->sender->id,
-                     'name' => $request->sender->name,
-                     // Bạn có thể thêm các thuộc tính khác
-                 ],
-                 'created_at' => $request->created_at,
-                 'updated_at' => $request->updated_at,
-             ];
-         });
+         $arr = [
+            'status' => true,
+            'message' => 'Danh sách kết bạn gửi đến',
+            'data' => $friendRequests->map(function ($friend) {
+                return [
+                    'id' => $friend->id,
+                    'name' => $friend->name,
+                    'avatar' => $friend->avatar,
+                    'updated_at' => $friend -> pivot ->updated_at->format('Y-m-d H:i:s'),
+                    'created_at' => $friend -> pivot ->created_at->format('Y-m-d H:i:s'),
+                ];
+            })
+        ];
  
-         return response()->json([
-             'pending_requests' => $transformedPendingRequests,
-         ], 200);
+         return response()->json($arr, 200);
      }
 
      //Lấy danh sách bạn bè chauw kết bạn
-     public function getPendingFriends(Request $request)
+    public function getPendingFriends(Request $request)
      {
-         $user = Auth::user();
+         $id_User = Auth::user();
  
          // Lấy danh sách bạn bè của người dùng hiện tại
-         $friends = $user->friends;
+         $friends = $id_User->friends;
  
          // Lấy danh sách tất cả người dùng
          $allUsers = User::all();
  
          // Lọc danh sách người dùng để chỉ lấy những người dùng chưa kết bạn
          $pendingFriends = $allUsers->whereNotIn('id', $friends->pluck('id'));
- 
-         return response()->json($pendingFriends);
+        
+         $arr = [
+            'status' => true,
+            'message' => 'Danh sách chưa kết bạn',
+            'data' => $pendingFriends->map(function ($friend) {
+                return [
+                    'id' => $friend->id,
+                    'name' => $friend->name,
+                    'avatar' => $friend->avatar,
+                ];
+            }),
+        ];
+         return response()->json($arr,200);
      }
+
 }

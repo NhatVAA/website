@@ -12,6 +12,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\StoryController;
+use App\Http\Controllers\FriendRequestController;
+
 
 
 /*
@@ -44,5 +46,13 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     Route::post('/like/{postId}', [LikeController::class, 'store']);
     Route::apiResource('/story', StoryController::class, );
     // Route::get('/story', [StoryController::class, 'Storyuse']);
+    Route::post('/friend/{postId}', [FriendRequestController::class, 'sendFriendRequest']);
+    Route::put('/friend/{postId}', [FriendRequestController::class, 'acceptFriendRequest']);
+    Route::delete('/friend/{postId}', [FriendRequestController::class, 'unfriend']);
+    Route::delete('/unfriendrequest/{postId}', [FriendRequestController::class, 'declinesendFriendRequest']);
+    Route::get('/friend', [FriendRequestController::class, 'getFriendsList']);
+    Route::get('/friendRequest', [FriendRequestController::class, 'getSentFriendRequests']);
+    Route::get('/RequestFriend', [FriendRequestController::class, 'getPendingFriendRequests']);
+    Route::get('/noFriend', [FriendRequestController::class, 'getPendingFriends']);
 });
 
