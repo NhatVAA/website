@@ -11,8 +11,10 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\LikeStoryController;
 use App\Http\Controllers\StoryController;
 use App\Http\Controllers\FriendRequestController;
+use App\Http\Controllers\SearchController;
 
 
 
@@ -64,6 +66,7 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     // Thêm Like / Bỏ Like cho bài viết (với Id bài viết)
     Route::post('/like/{postId}', [LikeController::class, 'store']);
     // *** hết phần Like ***
+    Route::post('/likestory/{storyId}', [LikeStoryController::class, 'store']);
     // route cho Story
     Route::apiResource('/story', StoryController::class, );
     // Route::get('/story', [StoryController::class, 'Storyuse']);
@@ -75,5 +78,6 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     Route::get('/friendRequest', [FriendRequestController::class, 'getSentFriendRequests']);
     Route::get('/RequestFriend', [FriendRequestController::class, 'getPendingFriendRequests']);
     Route::get('/noFriend', [FriendRequestController::class, 'getPendingFriends']);
+    Route::get('/search/{search}', [SearchController::class, 'search']);
 });
 
