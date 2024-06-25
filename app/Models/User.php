@@ -54,31 +54,35 @@ class User extends Authenticatable
 
     public function friends()
     {
-        return $this->belongsToMany(User::class, 'friendships', 'id_User', 'friend_id')->wherePivot('status', 'accepted');
+        return $this->belongsToMany(User::class, 'friendship', 'id_User', 'id_friend' )->wherePivot('status', 'accepted')->withTimestamps();
     }
-
+    
     public function friendRequests()
     {
-        return $this->belongsToMany(User::class, 'friendships', 'friend_id', 'id_User')->wherePivot('status', 'pending');
+        return $this->belongsToMany(User::class, 'friendship', 'id_friend', 'id_User')->wherePivot('status', 'pending')->withTimestamps();
     }
 
     public function sentFriendRequests()
     {
-        return $this->belongsToMany(User::class, 'friendships', 'id_User', 'friend_id')->wherePivot('status', 'pending');
+        return $this->belongsToMany(User::class, 'friendship', 'id_User', 'id_friend')->wherePivot('status', 'pending')->withTimestamps();
     }
 
     public function isFriendsWith($user)
     {
         return $this->friends->contains($user);
     }
-    public function pendingFriends():BelongsToMany
-    {
-        $pendingFriends = $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')
-            ->wherePivot('status', 'pending');
-        return $pendingFriends;
-    }
+    // public function pendingFriends():BelongsToMany
+    // {
+    //     $pendingFriends = $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')
+    //         ->wherePivot('status', 'pending');
+    //     return $pendingFriends;
+    // }
     public function comments()
     {
         return $this->hasMany(Comment::class  );
+    }
+    public function posts()
+    {
+        return $this->hasMany(Post::class  );
     }
 }
