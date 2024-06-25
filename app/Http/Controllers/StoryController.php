@@ -85,7 +85,7 @@ class StoryController extends Controller
             $story = Story::create($input1);
             $arr = [              
                 'status' => true,
-                'message' => 'Tạo bài viết thành công' ,
+                'message' => 'Tạo Story thành công' ,
                 'data' => new storyResource($story),
             ];
             return response()->json($arr, 200);
@@ -150,7 +150,7 @@ class StoryController extends Controller
                         
                             $arr = [
                                 'status' => true,
-                                'message' => 'Tạo bài viết thành công',
+                                'message' => 'Tạo Story thành công',
                                 'data' => [
                                     'story' => $story,
                                     'photos' => $photos,
@@ -205,7 +205,7 @@ class StoryController extends Controller
                         }  
                         $arr = [              
                             'status' => true,
-                            'message' => 'Tạo bài viết thành công' ,
+                            'message' => 'Tạo Story thành công' ,
                             'data' => [
                                     'story' => $story,
                                     'videos' => $videos,
@@ -283,7 +283,7 @@ class StoryController extends Controller
                                 }      
                         $arr = [              
                             'status' => true,
-                            'message' => 'Tạo bài viết thành công' ,
+                            'message' => 'Tạo Story thành công' ,
                             'data' => [
                                 'story' =>$story,
                                 'photos' => $photos,

@@ -23,12 +23,13 @@ class post extends JsonResource
             'content' => $this -> content,
             'privacy' => $this -> privacy,
             'id_User' => $this ->id_User,
-            'updated_at' => $this->updated_at->format('d/m/Y H:i:s'),   
-            'created_at' => $this->created_at->format('d/m/Y H:i:s'),
+            'updated_at' => $this->updated_at,   
+            'created_at' => $this->created_at,
             'photos' => $this->photos->toArray(),
             'videos' => $this->videos->toArray(),
-            'comments' => $this->comments->toArray(),
-            'likes' => $this->likes->toArray(),
+            'user' => $this->user->toArray(),
+            'comments' => array_reverse($this->comments->toArray()),
+            'likes' => array_reverse($this->likes->toArray()),
         ];
 
     }

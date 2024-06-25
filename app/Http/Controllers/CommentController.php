@@ -11,6 +11,22 @@ use App\Models\Comment;
 
 class CommentController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        //
+
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        //
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -44,7 +60,39 @@ class CommentController extends Controller
         return response()->json($arr, 201);
     }
 
+    /**
+     * Display the specified resource.
+     */
+    // Trả về danh sách các bình luận của bài viết với ID truyền vào
+    // /api/comment/{id_Post}
+    public function show(string $id)
+    {
+        //
+        $listComment = Comment::with('user')->where('id_Post',$id)->get();
+        if(!$listComment){
+            $arr = [
+                'status' => true,
+                'message' => 'Bài viết chưa có bình luận nào',
+                'data' => [],
+            ];
+            return response()->json($arr, 204);
+        }
 
+        $arr = [
+            'status' => true,
+            'message' => 'Danh sách các bình luận của bài viết',
+            'data' => array_reverse($listComment->toArray()),
+        ];
+        return response()->json($arr, 200);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        //
+    }
 
     /**
      * Update the specified resource in storage.
@@ -53,6 +101,7 @@ class CommentController extends Controller
     {
         //
         $idUser = auth()->user(); 
+        $commentOfUser = Comment::all()->where('id', $comment)->get('id_User');
         $input = $request->all();
         $validator = Validator::make($input,[
             'content' => 'required',
@@ -66,8 +115,9 @@ class CommentController extends Controller
             ];
             return response()->json($arr,404);
         }
-        elseif ($idUser->id !== $post->id_User) {
-            return response()->json(['error' => 'Unauthorized to edit this post'], 403);
+        // $idUser->id !== $post->id_User
+        elseif ($idUser->id !== $commentOfUser) {
+            return response()->json(['error' => 'Unauthorized to edit this post' ], 403);
         }
         $comment -> content = $input['content'];
         $comment->save();

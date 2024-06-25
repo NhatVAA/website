@@ -70,7 +70,7 @@ class AuthController extends Controller
                 'message' => 'Chào '.$user->name.'',
                 'data' => [
                     'access_token' => $token, 
-                    'token_type' => 'Bearer',
+                    'token_type' => 'bearer',
                     'user' => $user,
                 ],
             ];
@@ -94,5 +94,25 @@ class AuthController extends Controller
             'data' => [],
         ];
         return response()->json($arr,201);
-     }
+    }
+
+    // Refresh token
+    public function refresh()
+    {
+        $user = User::where('id',auth()->user()->id)->firstOrFail(); 
+        $token= $user->createToken('auth_token')->plainTextToken;
+        return $this->respondWithToken($token);
+    }
+
+    protected function respondWithToken($token)
+    {
+        $user = User::where('id',auth()->user()->id)->firstOrFail(); 
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => 3600,
+            'user' => $user,
+        ]);
+    }
+
 }
