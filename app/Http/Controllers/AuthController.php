@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\AuthRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Http\Resources\user as UserResource;
 
 
 class AuthController extends Controller
@@ -22,6 +23,31 @@ class AuthController extends Controller
     //     // }
     //     // return view('backend.auth.login');
     // }
+    public function index(){
+        $users = User::paginate(10);
+        $arr = [
+            'status' => true,
+            'message' => 'Thông tin tài khoản các user',
+            'data' => UserResource::collection($users),
+        ];
+        return response()->json($arr,200);
+    }
+    public function destroy(User $id){
+
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+    
+        // Xóa người dùng
+        $user->delete();
+        $arr = [
+            'status' => true,
+            'message' => 'Đã xoá tài khoản',
+            'data' => new UserResource($user),
+        ];
+        return response()->json($arr,200);
+    }
 
     public function login(AuthRequest $request){
 

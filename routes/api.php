@@ -15,6 +15,7 @@ use App\Http\Controllers\LikeStoryController;
 use App\Http\Controllers\StoryController;
 use App\Http\Controllers\FriendRequestController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\ReportController;
 
 
 
@@ -79,5 +80,17 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     Route::get('/RequestFriend', [FriendRequestController::class, 'getPendingFriendRequests']);
     Route::get('/noFriend', [FriendRequestController::class, 'getPendingFriends']);
     Route::get('/search/{search}', [SearchController::class, 'search']);
+    // Report cho user truyền id_Post với thông tin report vào nhé.
+    Route::post('/report', [ReportController::class, 'store']);
+    // *** Admin *** //
+    // Hiển thị Report cho admin.
+    Route::get('/report', [ReportController::class, 'index']);
+    // Xoá bài viết cho admin.
+    Route::delete('/admindelete/{post}', [PostController::class, 'Admindestroy']);
+    // Các thông tin tài khoản user.
+    Route::get('/userAdmin', [AuthController::class, 'index']);
+    // Xoá tài khoản dành cho admin.
+    Route::delete('/userAdmin/{id}', [AuthController::class, 'destroy']);
+
 });
 

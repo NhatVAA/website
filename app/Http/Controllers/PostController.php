@@ -394,6 +394,7 @@ class PostController extends Controller
                 $post->videos()->delete();
                 $post->comments()->delete();
                 $post->likes()->delete();
+                $post->reports()->delete();
                 $post->delete();
             $arr = [
                 'status' => true,
@@ -428,4 +429,48 @@ class PostController extends Controller
 
     // return response()->json(['message' => 'Post deleted successfully']);
     }
+    public function Admindestroy(Post $post)
+    {
+        try {
+            foreach ($post->photos as $image) {
+                $imageUrl = $image->photoUrl;
+                $pathUrl = parse_url($imageUrl);
+                $filename = basename($pathUrl['path']);
+
+                unlink(public_path('/uploads/image/' . $filename));
+                }
+                
+                $post->photos()->delete();    
+
+            foreach ($post->videos as $video) {
+    
+                $videoUrl = $video->videoUrl;
+                $pathUrl = parse_url($videoUrl);
+                $filename = basename($pathUrl['path']);
+    
+                unlink(public_path('/uploads/video/' . $filename));
+                }
+                $post->videos()->delete();
+                $post->comments()->delete();
+                $post->likes()->delete();
+                $post->reports()->delete();
+                $post->delete();
+            $arr = [
+                'status' => true,
+                'message' => 'Bài viết đã được xoá',
+                'data' => [],
+            ];
+            return response()->json($arr,200);  
+        }
+        
+        catch (\Exception $e) {
+                
+                        $arr = [
+                            'success' => false,
+                            'message' => 'Lỗi chưa xoá được'. $e->getMessage(),
+                            'data' => [],
+                        ];
+                        return response()->json($arr,404);
+        }
+    }      
 }
