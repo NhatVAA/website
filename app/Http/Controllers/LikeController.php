@@ -49,4 +49,27 @@ class LikeController extends Controller
             return response()->json($arr,200);
         }
     }
+
+    // Trả về danh sách các lượt like của bài viết với ID truyền vào
+    // /api/like/{id_Post}
+    public function show(string $id)
+    {
+        //
+        $listLike = Like::with('user')->where('id_Post',$id)->get();
+        if(!$listLike){
+            $arr = [
+                'status' => true,
+                'message' => 'Bài viết chưa có lượt thích nào',
+                'data' => [],
+            ];
+            return response()->json($arr, 204);
+        }
+
+        $arr = [
+            'status' => true,
+            'message' => 'Danh sách các lượt thích của bài viết',
+            'data' => array_reverse($listLike->toArray()),
+        ];
+        return response()->json($arr, 200);
+    }
 }

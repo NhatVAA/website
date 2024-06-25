@@ -17,6 +17,7 @@ class CommentController extends Controller
     public function index()
     {
         //
+
     }
 
     /**
@@ -62,9 +63,27 @@ class CommentController extends Controller
     /**
      * Display the specified resource.
      */
+    // Trả về danh sách các bình luận của bài viết với ID truyền vào
+    // /api/comment/{id_Post}
     public function show(string $id)
     {
         //
+        $listComment = Comment::with('user')->where('id_Post',$id)->get();
+        if(!$listComment){
+            $arr = [
+                'status' => true,
+                'message' => 'Bài viết chưa có bình luận nào',
+                'data' => [],
+            ];
+            return response()->json($arr, 204);
+        }
+
+        $arr = [
+            'status' => true,
+            'message' => 'Danh sách các bình luận của bài viết',
+            'data' => array_reverse($listComment->toArray()),
+        ];
+        return response()->json($arr, 200);
     }
 
     /**

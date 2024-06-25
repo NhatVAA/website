@@ -19,11 +19,12 @@ class PostController extends Controller
      */
     public function index()
     {
-        $post = Post::with('photos','videos','comments', 'likes')->where('privacy',0)->latest()->get();
+        $post = Post::with('user','photos','videos','comments', 'likes')->where('privacy',0)->latest()->get();
         $arr = [
             'status' => true,
             'message' => 'danh sách các bài viết',
             // 'data' => $post->toArray(),
+            // postResource::collection($post)
             'data' => postResource::collection($post),
         ];
         return response()->json($arr,200);
@@ -58,7 +59,7 @@ class PostController extends Controller
         {
             $validator = Validator::make($input, 
             [
-                'content' => 'required|string|max:100',
+                'content' => 'required|string|max:2000',
                 'privacy'=> 'required',
             ]);
 
@@ -91,7 +92,7 @@ class PostController extends Controller
             {
                 $validator = Validator::make($input, 
                     [
-                        'content' => 'required|string|max:100',
+                        'content' => 'required|string|max:2000',
                         'privacy'=> 'required',
                         'photoUrl' => 'required|file|image|max:2048|mimes:jpeg,png,jpg,gif',
                         'photoUrl' => 'required|array|max:5', // Limit to 5 files
@@ -162,7 +163,7 @@ class PostController extends Controller
                 {
                     $validator = Validator::make($input, 
                         [
-                            'content' => 'required|string|max:100',
+                            'content' => 'required|string|max:2000',
                             'privacy'=> 'required',
                             'videoUrl' => 'required|file|mimes:mp4,avi,mov,wmv',
                             'videoUrl' => 'required|array|max:5', // Limit to 5 files
@@ -217,7 +218,7 @@ class PostController extends Controller
                     {
                         $validator = Validator::make($input, 
                         [
-                            'content' => 'required|string|max:100',
+                            'content' => 'required|string|max:2000',
                             'privacy'=> 'required',
                             'photoUrl' => 'required|file|image|max:2048|mimes:jpeg,png,jpg,gif',
                             'photoUrl' => 'required|array|max:5', // Limit to 5 files

@@ -10,6 +10,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\FriendRequestController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\StoryController;
 
@@ -38,11 +39,12 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::group(['middleware' => ['auth:sanctum']] , function () 
 {
     // route đăng xuất
-    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/logout', [AuthController::class, 'logout']);
     // route refresh token
-    Route::post('/refresh', [AuthController::class, 'refresh']);
+    Route::get('/refresh', [AuthController::class, 'refresh']);
     // route CRUD cho profile (Create, Read, Update, Delete)
     Route::apiResource('/profile', ProfileController::class, );
+    Route::get('/profile/friends/{id_User}', [ProfileController::class, 'getProfileFriendList']);
     // route CRUD cho post (Create, Read, Update, Delete)
     Route::apiResource('/post', PostController::class, );
 
@@ -50,6 +52,8 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     // Route::apiResource('/comment', CommentController::class, );
     // Lấy ra các Comment của bài viết (với Id bài viết)
     // ...
+    // Lấy danh sách comment của bài viết (với ID bài viết)
+    Route::get('/comment/{idPost}', [CommentController::class, 'show']);
     // Thêm Comment vào bài viết (với Id bài viết)
     Route::post('/comment/{idPost}', [CommentController::class, 'store']);
     // Sửa Comment (với Id của Comment)
@@ -62,10 +66,14 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     // Lấy ra các Like của bài viết (với Id bài viết)
     // ...
     // Thêm Like / Bỏ Like cho bài viết (với Id bài viết)
-    Route::post('/like/{postId}', [LikeController::class, 'store']);
+    Route::get('/like/{postId}', [LikeController::class, 'store']);
+    // Lấy danh sách lượt Like của bài viết (với ID bài viết)
+    Route::get('/likes/{postId}', [LikeController::class, 'show']);
     // *** hết phần Like ***
     // route cho Story
     Route::apiResource('/story', StoryController::class, );
     // Route::get('/story', [StoryController::class, 'Storyuse']);
+    // *** Phần Friends ***
+    // Route::get('/friends', [FriendRequestController::class, 'getFriendsList']);
 });
 

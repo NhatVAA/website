@@ -25,7 +25,7 @@ class ProfileController extends Controller
         if((auth()->user()) != null){
             $idUser = auth()->user()->id;
             $userInfo = User::all()->find($idUser); // thông tin của User đang đăng nhập 
-            $userPost = Post::with('photos','videos','comments', 'likes',)->where('id_User',$idUser)->get(); // các bài viết của User đang đăng nhập
+            $userPost = Post::with('photos','videos','user','comments','likes')->where('id_User',$idUser)->get(); // các bài viết của User đang đăng nhập
             $userFriend = Friendship::where(function ($query) use ($idUser) {
                 $query->where('id_User', $idUser)
                       ->orWhere('id_friend', $idUser);
@@ -35,7 +35,7 @@ class ProfileController extends Controller
                 'status' => true,
                 'message' => 'Xin chào '.$userInfo->name,
                 'data' => [
-                    'user' => $userInfo,
+                    'user' => [$userInfo],
                     'posts' => $userPost,
                     'friends' => $userFriend,
                 ],
@@ -75,7 +75,7 @@ class ProfileController extends Controller
     {
         //
         $userInfo = User::all()->find($id); // thông tin của user có ID đc truyền vào
-        $userPost = Post::with('photos','videos','comments', 'likes',)->where('idUser',$id)->where('privacy',0)->get(); // các bài viết công khai của user có ID đc truyền vào
+        $userPost = Post::with('photos','videos','user','comments', 'likes',)->where('id_User',$id)->where('privacy',0)->get(); // các bài viết công khai của user có ID đc truyền vào
         // danh sách bạn bè của user có ID đc truyền vào
         $userFriend = Friendship::where(function ($query) use ($id) {
             $query->where('id_User', $id)
@@ -95,7 +95,7 @@ class ProfileController extends Controller
                 'status' => true,
                 'message' => 'Dữ liệu trang cá nhân',
                 'data' => [
-                    'user' => $userInfo,
+                    'user' => [$userInfo],
                     'posts' => $userPost,
                     'friends' => $userFriend,
                 ],
@@ -197,5 +197,31 @@ class ProfileController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+    // Hàm lấy ra list bạn bè của trang cá nhân với id_User truyền vào
+    public function getProfileFriendList(string $id){
+        $profileFriendList = Friendship::with('user')->where(function($query) use ($id) {
+            $query->where('id_User', $id)
+                  ->orWhere('id_friend', $id);
+        })
+        ->where('status', 1)
+        ->get();
+        //
+        if($profileFriendList){
+            $arr = [
+                'status' => true,
+                'message' => 'Danh sách bạn bè của người dùng này',
+                'data' => $profileFriendList,
+            ];
+            return response()->json($arr, 200);
+        }else{
+            $arr = [
+                'status' => false,
+                'message' => 'Người dùng này chưa có bạn bè nào',
+                'data' => [],
+            ];
+            return response()->json($arr, 204);
+        }
+       
     }
 }
