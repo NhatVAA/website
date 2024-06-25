@@ -12,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 use App\Models\User;
 use App\Models\Message;
 
-class MessageSent
+class MessageSent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -35,7 +35,20 @@ class MessageSent
     public function broadcastOn(): Channel
     {
         return [
-            new PrivateChannel('messages'),
+            new PrivateChannel('message.' . $this->message->sender_id . '.' . $this->message->receiver_id),
         ];
     }
+    // public function broadcastWith(): array
+    // {
+    //     return [
+    //         'message' => [
+    //             'id' => $this->message->id,
+    //             'sender_id' => $this->message->sender_id,
+    //             'receiver_id' => $this->message->receiver_id,
+    //             'content' => $this->message->message,
+    //             'created_at' => $this->message->created_at->format('d/m/Y H:i:s'),
+    //             // Add more fields if needed
+    //         ],
+    //     ];
+    // }
 }
