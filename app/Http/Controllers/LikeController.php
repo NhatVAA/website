@@ -46,6 +46,7 @@ class LikeController extends Controller
                     'likes' => $post->likes()->count(),
                 ]
             ];
+            
             return response()->json($arr,200);
         }
     }

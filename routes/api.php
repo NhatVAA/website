@@ -14,9 +14,10 @@ use App\Http\Controllers\FriendRequestController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\LikeStoryController;
 use App\Http\Controllers\StoryController;
-use App\Http\Controllers\FriendRequestController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\MessageController;
+
 
 
 
@@ -83,12 +84,20 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     // Route::get('/friends', [FriendRequestController::class, 'getFriendsList']);
     Route::post('/friend/{postId}', [FriendRequestController::class, 'sendFriendRequest']);
     Route::put('/friend/{postId}', [FriendRequestController::class, 'acceptFriendRequest']);
+    // Xoá bạn bè
     Route::delete('/friend/{postId}', [FriendRequestController::class, 'unfriend']);
-    Route::delete('/unfriendrequest/{postId}', [FriendRequestController::class, 'declinesendFriendRequest']);
+    // Danh sách bạn bè
     Route::get('/friend', [FriendRequestController::class, 'getFriendsList']);
+    // Xoá lời mời đã gửi đi
+    Route::delete('/unfriendrequest/{postId}', [FriendRequestController::class, 'declinesendFriendRequest']);
+    // Từ chối kết bạn 
+    Route::delete('/unfriend/{postId}', [FriendRequestController::class, 'declineFriendRequest']);
+
     Route::get('/friendRequest', [FriendRequestController::class, 'getSentFriendRequests']);
     Route::get('/RequestFriend', [FriendRequestController::class, 'getPendingFriendRequests']);
+    // Đề nghị kết bạn
     Route::get('/noFriend', [FriendRequestController::class, 'getPendingFriends']);
+    // Tìm kiếm
     Route::get('/search/{search}', [SearchController::class, 'search']);
     // Report cho user truyền id_Post với thông tin report vào nhé.
     Route::post('/report', [ReportController::class, 'store']);
@@ -101,6 +110,8 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     Route::get('/userAdmin', [AuthController::class, 'index']);
     // Xoá tài khoản dành cho admin.
     Route::delete('/userAdmin/{id}', [AuthController::class, 'destroy']);
-
+    //
+    Route::post('/messages', [MessageController::class, 'sendMessage']);
+    Route::get('/messages', [MessageController::class, 'getMessages']);
 });
 

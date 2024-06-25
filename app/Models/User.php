@@ -51,7 +51,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-    protected $cascadeDeletes = ['comments', 'likes' , 'reports' , 'friend' , 'likestorys' , 'photos','videos','posts','storys'];
+    protected $cascadeDeletes = ['comments', 'likes' , 'reports' , 'friend' , 'likestorys' , 'photos','videos','posts','storys', 'messages'];
 
     public function friends()
     {
@@ -113,6 +113,10 @@ class User extends Authenticatable
     public function posts()
     {
         return $this->hasMany(Post::class  )->onDelete('cascade');
+    }
+    public function messages()
+    {
+        return $this->hasMany(Message::class)->onDelete('cascade');
     }
    
 }
