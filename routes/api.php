@@ -110,7 +110,7 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     Route::get('/userAdmin', [AuthController::class, 'index']);
     // Xoá tài khoản dành cho admin.
     Route::delete('/userAdmin/{id}', [AuthController::class, 'destroy']);
-    //
+    // 
     Route::post('/messages', [MessageController::class, 'sendMessage']);
     Route::get('/messages', [MessageController::class, 'getMessages']);
 });
