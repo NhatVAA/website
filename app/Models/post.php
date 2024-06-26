@@ -13,24 +13,31 @@ class Post extends Model
     protected $fillable = [
         'content',
         'privacy',
-        'idUser',
+        'id_User',
     ];
 
     public function photos()
     {
-        return $this->hasMany(Photo::class , 'idPost' );
+        return $this->hasMany(Photo::class , 'id_Post' );
     }
     public function videos()
     {
-        return $this->hasMany(Video::class , 'idPost' );
+        return $this->hasMany(Video::class , 'id_Post' );
     }
     public function comments()
     {
-        return $this->hasMany(Comment::class);
+        return $this->hasMany(Comment::class ,"id_Post");
     }
     public function likes()
     {
-        return $this->hasMany(Like::class);
+        return $this->hasMany(Like::class, "id_Post");
     }
-
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_User');
+    }
+    public function reports()
+    {
+        return $this->hasMany(Report::class);
+    }
 }

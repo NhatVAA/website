@@ -7,6 +7,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Laravel\Sanctum\HasApiTokens;
 
 
@@ -26,6 +27,9 @@ class User extends Authenticatable
         'phoneNumber',
         'birth',
         'gender',
+        'avatar',
+        'coverimage',
+        'role',
     ];
 
     /**
@@ -47,24 +51,72 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+    protected $cascadeDeletes = ['comments', 'likes' , 'reports' , 'friend' , 'likestorys' , 'photos','videos','posts','storys', 'messages'];
 
     public function friends()
     {
-        return $this->belongsToMany(User::class, 'friendship', 'id_User', 'id_friend')->wherePivot('status', 'accepted');
+        return $this->belongsToMany(User::class, 'friendship', 'id_User', 'id_friend' )->wherePivot('status', 'accepted')->withTimestamps();
     }
-
+    
     public function friendRequests()
     {
-        return $this->belongsToMany(User::class, 'friendship', 'id_friend', 'id_User')->wherePivot('status', 'pending');
+        return $this->belongsToMany(User::class, 'friendship', 'id_friend', 'id_User')->wherePivot('status', 'pending')->withTimestamps();
     }
 
     public function sentFriendRequests()
     {
-        return $this->belongsToMany(User::class, 'friendship', 'id_User', 'id_friend')->wherePivot('status', 'pending');
+        return $this->belongsToMany(User::class, 'friendship', 'id_User', 'id_friend')->wherePivot('status', 'pending')->withTimestamps();
     }
 
     public function isFriendsWith($user)
     {
         return $this->friends->contains($user);
     }
+    // public function pendingFriends():BelongsToMany
+    // {
+    //     $pendingFriends = $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')
+    //         ->wherePivot('status', 'pending');
+    //     return $pendingFriends;
+    // }
+    public function friend()
+    {
+        return $this->hasMany(Friendship::class  )->onDelete('cascade');
+    }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class  )->onDelete('cascade');
+    }
+    public function likes()
+    {
+        return $this->hasMany(Like::class  )->onDelete('cascade');
+    }
+    public function likestorys()
+    {
+        return $this->hasMany(LikeStory::class)->onDelete('cascade');
+    }
+    public function photos()
+    {
+        return $this->hasMany(Photo::class )->onDelete('cascade');
+    }
+    public function videos()
+    {
+        return $this->hasMany(Video::class )->onDelete('cascade');
+    }
+    
+    public function reports() {
+        return $this->hasMany(Report::class)->onDelete('cascade');
+    }
+    public function storys()
+    {
+        return $this->hasMany(Story::class  )->onDelete('cascade');
+    }
+    public function posts()
+    {
+        return $this->hasMany(Post::class  )->onDelete('cascade');
+    }
+    public function messages()
+    {
+        return $this->hasMany(Message::class)->onDelete('cascade');
+    }
+   
 }

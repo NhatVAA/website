@@ -27,6 +27,7 @@ class RegisterController extends Controller
             'phoneNumber' => $request->input('phoneNumber'),
             'birth' => $request->input('birth'),
             'gender' => $request->input('gender'),
+            'role' => 2001, // 2001 là mã quyền của người dùng bình thường, 5150 là của admin
         ];
         try{
             $user = User::create($input);

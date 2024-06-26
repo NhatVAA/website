@@ -11,14 +11,18 @@ class Comment extends Model
 
     protected $table = 'comment';
     protected $fillable = [
+        'content',
         'id_Post',
         'id_User',
-        'content',
     ];
 
     public function post()
     {
-        return $this->belongsTo(Post::class  );
+        return $this->belongsTo(Post::class , 'id_Post' );
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_User' );
     }
 }
 

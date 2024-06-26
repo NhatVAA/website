@@ -12,7 +12,6 @@ use App\Models\Photo;
 use App\Models\Video;
 use App\Http\Resources\post as postResource;
 
-
 class PostController extends Controller
 {
     /**
@@ -20,19 +19,39 @@ class PostController extends Controller
      */
     public function index()
     {
-        $post = Post::with('photos','videos','comments', 'likes')->where('privacy',0)->latest()->get();
+        $post = Post::with('user','photos','videos','comments', 'likes')->where('privacy',0)->latest()->get();
         $arr = [
             'status' => true,
             'message' => 'danh sách các bài viết',
-            'data' => $post->toArray(),
+            // 'data' => $post->toArray(),
+            // postResource::collection($post)
+            'data' => postResource::collection($post),
+        ];
+        return response()->json($arr,200);
+    }
+    //chua text
+    public function baivietprofile($id = 0)
+    {
+        $post = Post::with('photos','videos','comments', 'likes')->where('id_User',$id)->latest()->get();
+        $arr = [
+            'status' => true,
+            'message' => 'danh sách các bài viết',
+            // 'data' => $post->toArray(),
+            'data' => postResource::collection($post),
         ];
         return response()->json($arr,200);
     }
 
-
     /**
      * Store a newly created resource in storage.
      */
+    /*
+        Hàm xử lý đăng bài viết:
+        - content(string): caption của bài viết
+        - privacy(int): 0 cho chế độ công khai, 1 cho chế độ chỉ mình tôi
+        - photoUrl[](array): là một mảng chứa các file hình
+        - videoUrl[](array): là một mảng chứa các file video
+    */
     public function store(Request $request)
     {
         $input = $request->all();
@@ -40,7 +59,7 @@ class PostController extends Controller
         {
             $validator = Validator::make($input, 
             [
-                'content' => 'required|string|max:100',
+                'content' => 'required|string|max:2000',
                 'privacy'=> 'required',
             ]);
 
@@ -58,7 +77,7 @@ class PostController extends Controller
                 [   
                     'content' => $request->input('content'),
                     'privacy' => $request->input('privacy'),
-                    'idUser' => $user->id,
+                    'id_User' => $user->id,
                 ];
             $post = Post::create($input1);
             $arr = [              
@@ -73,7 +92,7 @@ class PostController extends Controller
             {
                 $validator = Validator::make($input, 
                     [
-                        'content' => 'required|string|max:100',
+                        'content' => 'required|string|max:2000',
                         'privacy'=> 'required',
                         'photoUrl' => 'required|file|image|max:2048|mimes:jpeg,png,jpg,gif',
                         'photoUrl' => 'required|array|max:5', // Limit to 5 files
@@ -92,18 +111,18 @@ class PostController extends Controller
                         [   
                             'content' => $request->input('content'),
                             'privacy' => $request->input('privacy'),
-                            'idUser' => $user->id,
+                            'id_User' => $user->id,
                         ];
                     // $input2 = 
                     //     [
                     //         'photoUrl' => $request->input('photoUrl'),
-                    //         'idPost' => null,
+                    //         'id_Post' => null,
                     //     ];
                     $photos = [];
                     // DB::transaction(function () use ($input1, $input2) 
                     //     {
                     $post = Post::create($input1);                           
-                            // $input2['idPost'] = $post['id'];
+                            // $input2['id_Post'] = $post['id'];
                             foreach ($request->file('photoUrl') as $imageFile) {
                                 $fileName = $imageFile->getClientOriginalName();
                                 $fileExtension = $imageFile->getClientOriginalExtension();
@@ -115,12 +134,12 @@ class PostController extends Controller
                         
                                     $input2 = [
                                         'photoUrl' => $imageUrl,
-                                        'idPost' => $post['id'],
+                                        'id_Post' => $post['id'],
                                     ];
                         
                                     $photo = Photo::create($input2);
                                     $photos[] = $photo;
-                                } catch (Exception $e) {
+                                } catch (\Exception $e) {
                                     return response()->json([
                                         'status' => false,
                                         'message' => 'Error uploading image: ' . $e->getMessage()
@@ -144,7 +163,7 @@ class PostController extends Controller
                 {
                     $validator = Validator::make($input, 
                         [
-                            'content' => 'required|string|max:100',
+                            'content' => 'required|string|max:2000',
                             'privacy'=> 'required',
                             'videoUrl' => 'required|file|mimes:mp4,avi,mov,wmv',
                             'videoUrl' => 'required|array|max:5', // Limit to 5 files
@@ -164,7 +183,7 @@ class PostController extends Controller
                             [   
                                 'content' => $request->input('content'),
                                 'privacy' => $request->input('privacy'),
-                                'idUser' => $user->id,
+                                'id_User' => $user->id,
                             ];
                         $post = Post::create($input1);
 
@@ -180,7 +199,7 @@ class PostController extends Controller
                             $input2 = 
                                 [
                                     'videoUrl' =>  $videoUrl,
-                                    'idPost' => $post['id'],
+                                    'id_Post' => $post['id'],
                                 ];
                             $video = Video::create($input2);
                             $videos[] = $video;       
@@ -199,7 +218,7 @@ class PostController extends Controller
                     {
                         $validator = Validator::make($input, 
                         [
-                            'content' => 'required|string|max:100',
+                            'content' => 'required|string|max:2000',
                             'privacy'=> 'required',
                             'photoUrl' => 'required|file|image|max:2048|mimes:jpeg,png,jpg,gif',
                             'photoUrl' => 'required|array|max:5', // Limit to 5 files
@@ -220,7 +239,7 @@ class PostController extends Controller
                             [   
                                 'content' => $request->input('content'),
                                 'privacy' => $request->input('privacy'),
-                                'idUser' => $user->id,
+                                'id_User' => $user->id,
                             ];               
                         $post = Post::create($input1);
 
@@ -236,12 +255,12 @@ class PostController extends Controller
                             
                                         $input2 = [
                                             'photoUrl' => $imageUrl,
-                                            'idPost' => $post['id'],
+                                            'id_Post' => $post['id'],
                                         ];
                             
                                         $photo = Photo::create($input2);
                                         $photos[] = $photo;
-                                    } catch (Exception $e) {
+                                    } catch (\Exception $e) {
                                         return response()->json([
                                             'status' => false,
                                             'message' => 'Error uploading image: ' . $e->getMessage()
@@ -260,7 +279,7 @@ class PostController extends Controller
                                     $input2 = 
                                         [
                                             'videoUrl' =>  $videoUrl,
-                                            'idPost' => $post['id'],
+                                            'id_Post' => $post['id'],
                                         ];
                                     $video = Video::create($input2);
                                     $videos[] = $video;       
@@ -284,7 +303,6 @@ class PostController extends Controller
     public function show(Post $post)
     {
         $post = $post->with('photos','videos','comments', 'likes',)->where('privacy',0)->find($post);
-
         if(is_null($post))
             {
                 $arr = [
@@ -299,8 +317,9 @@ class PostController extends Controller
             $arr = [
                 'success' => True,
                 'message' => 'Chi tiết bài viết',
-                'data' => $post->toArray(),
+                'data' => postResource::collection($post),
                 ];
+
             return response()->json($arr,200);    
         }  
         
@@ -312,9 +331,10 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
+        $idUser = auth()->user(); 
         $input = $request->all();
         $validator = Validator::make($input,[
-            'content' => 'required|string|max:100',
+            'content' => 'required',
             'privacy' => 'required',
         ]);
         if($validator -> fails())
@@ -322,10 +342,13 @@ class PostController extends Controller
                 $arr = [
                     'success' => false,
                     'message' => 'Lỗi kiểm tra dữ liệu',
-                    'data' => $validator -> errors(),
+                    'data' => $validator -> errors(),$input,
                 ];
                 return response()->json($arr,400);
             }
+        elseif ($idUser->id !== $post->id_User) {
+            return response()->json(['error' => 'Unauthorized to edit this post'], 403);
+        }
         else
             {
                 $post -> content = $input['content'];
@@ -347,7 +370,10 @@ class PostController extends Controller
     public function destroy(Post $post)
     {
         try {
-
+            $idUser = auth()->user();
+            if ($idUser->id !== $post->id_User) {
+                return response()->json(['error' => 'Unauthorized to destroy this post'], 403);
+            } 
             foreach ($post->photos as $image) {
                 $imageUrl = $image->photoUrl;
                 $pathUrl = parse_url($imageUrl);
@@ -369,6 +395,7 @@ class PostController extends Controller
                 $post->videos()->delete();
                 $post->comments()->delete();
                 $post->likes()->delete();
+                $post->reports()->delete();
                 $post->delete();
             $arr = [
                 'status' => true,
@@ -403,4 +430,48 @@ class PostController extends Controller
 
     // return response()->json(['message' => 'Post deleted successfully']);
     }
+    public function Admindestroy(Post $post)
+    {
+        try {
+            foreach ($post->photos as $image) {
+                $imageUrl = $image->photoUrl;
+                $pathUrl = parse_url($imageUrl);
+                $filename = basename($pathUrl['path']);
+
+                unlink(public_path('/uploads/image/' . $filename));
+                }
+                
+                $post->photos()->delete();    
+
+            foreach ($post->videos as $video) {
+    
+                $videoUrl = $video->videoUrl;
+                $pathUrl = parse_url($videoUrl);
+                $filename = basename($pathUrl['path']);
+    
+                unlink(public_path('/uploads/video/' . $filename));
+                }
+                $post->videos()->delete();
+                $post->comments()->delete();
+                $post->likes()->delete();
+                $post->reports()->delete();
+                $post->delete();
+            $arr = [
+                'status' => true,
+                'message' => 'Bài viết đã được xoá',
+                'data' => [],
+            ];
+            return response()->json($arr,200);  
+        }
+        
+        catch (\Exception $e) {
+                
+                        $arr = [
+                            'success' => false,
+                            'message' => 'Lỗi chưa xoá được'. $e->getMessage(),
+                            'data' => [],
+                        ];
+                        return response()->json($arr,404);
+        }
+    }      
 }

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Post;
+use App\Models\Comment;
 
 class CommentController extends Controller
 {
@@ -16,6 +17,7 @@ class CommentController extends Controller
     public function index()
     {
         //
+
     }
 
     /**
@@ -29,9 +31,10 @@ class CommentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store($post)
+    public function store(Request $request, $idPost)
     {
-        $post = Post::find($post);
+        $content = $request->content;
+        $post = Post::find($idPost);
         if (!$post) {
             return response()->json(['error' => 'Post not found'], 404);
         }
@@ -39,33 +42,49 @@ class CommentController extends Controller
         $commentData = request()->validate([
             'content' => 'required|string',
         ]);
+        
         $userId = auth()->user()->id;
         $commentData = [
-            'content' => request()->all(),
+            'content' => $content,
+            'id_Post' => $post->id,
             'id_User' => $userId,
         ];
-
-        // if ($commentData->fails()) 
-        // {
-        //     $arr = [              
-        //             'status' => false,
-        //             'message' => 'Thông tin chưa chính xác' ,
-        //             'data' => [$commentData->errors()],
-        //     ];
-        //     return response()->json($arr,404);
-        // }
+    
         $comment = new Comment($commentData);
         $post->comments()->save($comment);
-
-        return response()->json($comment, 201);
+        $arr = [
+            'status' => true,
+            'message' => 'Bình luận thành công',
+            'data' => $comment,
+        ];
+        //tạo thông báo cmt
+        return response()->json($arr, 201);
     }
 
     /**
      * Display the specified resource.
      */
+    // Trả về danh sách các bình luận của bài viết với ID truyền vào
+    // /api/comment/{id_Post}
     public function show(string $id)
     {
         //
+        $listComment = Comment::with('user')->where('id_Post',$id)->get();
+        if(!$listComment){
+            $arr = [
+                'status' => true,
+                'message' => 'Bài viết chưa có bình luận nào',
+                'data' => [],
+            ];
+            return response()->json($arr, 204);
+        }
+
+        $arr = [
+            'status' => true,
+            'message' => 'Danh sách các bình luận của bài viết',
+            'data' => array_reverse($listComment->toArray()),
+        ];
+        return response()->json($arr, 200);
     }
 
     /**
@@ -79,11 +98,14 @@ class CommentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Comment $comment)
+    public function update(Request $request,Comment $comment)
     {
-        $input = $request->content;
+        //
+        $idUser = auth()->user(); 
+        $commentOfUser = Comment::all()->where('id', $comment)->get('id_User');
+        $input = $request->all();
         $validator = Validator::make($input,[
-            'content' => 'required|String',
+            'content' => 'required',
         ]);
         if($validator->fails())
         {
@@ -94,10 +116,15 @@ class CommentController extends Controller
             ];
             return response()->json($arr,404);
         }
-        $comment->save($input);
+        // $idUser->id !== $post->id_User
+        elseif ($idUser->id !== $commentOfUser) {
+            return response()->json(['error' => 'Unauthorized to edit this post' ], 403);
+        }
+        $comment -> content = $input['content'];
+        $comment->save();
         $arr = [
-            'status' => false,
-            'message' => 'Lỗi thông tin xin nhập lại',
+            'status' => true,
+            'message' => 'Bình luận đã được cập nhật',
             'data' => $comment,
         ];
         return response()->json($arr,200);
@@ -108,6 +135,17 @@ class CommentController extends Controller
      */
     public function destroy(Comment $comment)
     {
+        //
+        $idUser = auth()->user();
+        $idUser1 = $idUser->id ;
+        $comment = Comment::all()->find($comment);
+        $id_Post = $comment->id_Post;
+        $id_User = $comment->id_User;
+        $post = $comment->post;
+        if ($idUser1 !== $id_User && $idUser1 !== $post->id_User) {
+            return response()->json(['error' => 'Unauthorized to delete this comment'], 403);
+        }
+
         $comment->delete();
         $arr = [
             'status' => true,

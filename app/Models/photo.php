@@ -11,8 +11,8 @@ class Photo extends Model
 
     protected $table = 'photo';
     protected $fillable = [
-        'idPost',
-        'idStory',
+        'id_Post',
+        'id_Story',
         'photoUrl',
     ];
 

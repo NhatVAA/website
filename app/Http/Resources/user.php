@@ -25,8 +25,9 @@ class user extends JsonResource
             'phoneNumber' =>$this -> phoneNumber,
             'birth' =>$this -> birth,
             'gender' =>$this -> gender,
-            'updated_at' => $this->updated_at->format('d/m/Y'),
-            'created_at' => $this->created_at->format('d/m/Y'),
+            'role' => $this -> role,
+            'updated_at' => $this->updated_at->format('d/m/Y H:i:s'),
+            'created_at' => $this->created_at->format('d/m/Y H:i:s'),
         ];
 
     }
