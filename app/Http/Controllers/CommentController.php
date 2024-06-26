@@ -57,6 +57,7 @@ class CommentController extends Controller
             'message' => 'Bình luận thành công',
             'data' => $comment,
         ];
+        //tạo thông báo cmt
         return response()->json($arr, 201);
     }
 
