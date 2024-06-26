@@ -10,9 +10,21 @@ use App\Models\User;
 
 class MessageController extends Controller
 {
-    public function __construct(Pusher $pusher)
+    // protected $pusher;
+
+    public function __construct()
     {
-        $this->pusher = $pusher;
+        // $this->pusher = $pusher;
+        $this->pusher = new Pusher(
+            config('broadcasting.connections.pusher.key'),
+            config('broadcasting.connections.pusher.secret'),
+            config('broadcasting.connections.pusher.app_id'),
+            [
+                'cluster' => config('broadcasting.connections.pusher.options.cluster'),
+                'useTLS' => true,
+            ]
+        );
+
     }
 
     public function sendMessage(Request $request)
@@ -26,11 +38,15 @@ class MessageController extends Controller
             'receiver_id' => $receiverId,
             'message' => $message
         ]);
+        // broadcast(new MessageSent($newMessage));
 
         // Gửi thông báo cho người nhận
-        $this->pusher->trigger('messages', 'new-message', [
+        $this->pusher->trigger('messages', 'MessageSent', [
             'message' => $newMessage
         ]);
+        
+        // broadcast(new MessageSent($newMessage))->toOthers();
+
         $arr = [
             'status' => true,
             'message' => 'Tin nhắn đã được gửi thành công',
