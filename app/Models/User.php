@@ -50,17 +50,17 @@ class User extends Authenticatable
 
     public function friends()
     {
-        return $this->belongsToMany(User::class, 'friendships', 'id_User', 'friend_id')->wherePivot('status', 'accepted');
+        return $this->belongsToMany(User::class, 'friendship', 'id_User', 'id_friend')->wherePivot('status', 'accepted');
     }
 
     public function friendRequests()
     {
-        return $this->belongsToMany(User::class, 'friendships', 'friend_id', 'id_User')->wherePivot('status', 'pending');
+        return $this->belongsToMany(User::class, 'friendship', 'id_friend', 'id_User')->wherePivot('status', 'pending');
     }
 
     public function sentFriendRequests()
     {
-        return $this->belongsToMany(User::class, 'friendships', 'id_User', 'friend_id')->wherePivot('status', 'pending');
+        return $this->belongsToMany(User::class, 'friendship', 'id_User', 'id_friend')->wherePivot('status', 'pending');
     }
 
     public function isFriendsWith($user)

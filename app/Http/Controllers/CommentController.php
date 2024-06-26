@@ -7,8 +7,6 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Post;
-use App\Models\Comment;
-
 
 class CommentController extends Controller
 {

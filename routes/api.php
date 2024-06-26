@@ -10,6 +10,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\FriendRequestController;
 
 
 /*
@@ -37,5 +38,7 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     Route::apiResource('/post', PostController::class, );
     Route::apiResource('/comment/{idPost}', CommentController::class, );
     Route::post('/like/{postId}', [LikeController::class, 'store']);
+    Route::post('/friend/{userId}', [FriendRequestController::class, 'sendFriendRequest']);
+    
 });
 
