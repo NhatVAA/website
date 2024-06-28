@@ -5,12 +5,28 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Pusher\Pusher;
 use App\Models\User;
 use App\Models\Post;
 use App\Models\Like;
 
 class LikeController extends Controller
 {
+    
+    public function __construct()
+    {
+        // $this->pusher = $pusher;
+        $this->pusher = new Pusher(
+            config('broadcasting.connections.pusher.key'),
+            config('broadcasting.connections.pusher.secret'),
+            config('broadcasting.connections.pusher.app_id'),
+            [
+                'cluster' => config('broadcasting.connections.pusher.options.cluster'),
+                'useTLS' => true,
+            ]
+        );
+
+    }
     // Hàm thực hiện Like / Hủy Like
     public function store($postId){
         $post = Post::find($postId);
@@ -39,6 +55,12 @@ class LikeController extends Controller
             ]);
 
             $post->likes()->save($newLike);
+            
+            //Gửi thông báo pusher
+            $this->pusher->trigger('like', 'LikeSent', [
+                'message' => $newLike,
+            ]);
+
             $arr = [
                 'status' => true,
                 'message' => 'Đã like thành công',

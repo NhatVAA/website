@@ -6,9 +6,27 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\friend as friendResource;
+use Resources\js\bootstrap;
+use Pusher\Pusher;
+use Pusher\Echo;
+
 
 class FriendRequestController extends Controller
 {
+    public function __construct()
+    {
+        // $this->pusher = $pusher;
+        $this->pusher = new Pusher(
+            config('broadcasting.connections.pusher.key'),
+            config('broadcasting.connections.pusher.secret'),
+            config('broadcasting.connections.pusher.app_id'),
+            [
+                'cluster' => config('broadcasting.connections.pusher.options.cluster'),
+                'useTLS' => true,
+            ]
+        );
+
+    }
     // hàm gửi lời mời kết bạn
     public function sendFriendRequest(Request $request, $userId)
     {
@@ -43,6 +61,13 @@ class FriendRequestController extends Controller
         else{
         // Gửi yêu cầu kết bạn
         $id_User->sentFriendRequests()->attach($id_friend->id);
+
+        //gửi thông báo pusher
+        $this->pusher->trigger('friend', 'FriendSent', [
+            'message' => $id_User,
+        ]);
+        // $this->sendFriendRequestNotification($receiverId, $senderId);
+
         $arr =  [
             'status' => true,
             'message' => 'Đã gửi lời mời đến '.$id_friend -> name.' thành công',
@@ -55,10 +80,63 @@ class FriendRequestController extends Controller
         }
     }
 
+    // private function sendFriendRequestNotification($id_friend, $id_User)
+    // {
+    //     $user = User::find($id_friend);
+
+    //     // Kiểm tra xem người dùng có trực tuyến hay không bằng Pusher Presence Channels
+    //     if ($user->isOnline()) 
+    //     {
+    //         // Gửi thông báo bằng Pusher Echo
+    //         try {
+    //             Echo::channel('user-' . $receiverId)->whisper('friend-request', [
+    //                 'senderId' => $senderId,
+    //             ]);
+    //         } catch (\Pusher\PusherException $e) {
+    //             // Handle Pusher communication errors (optional)
+    //             log::error("Pusher Error: " . $e->getMessage());
+    //         }
+    //     }
+    //     else {
+    //         // Gửi thông báo bằng Pusher Beams (cho người dùng ngoại tuyến)
+    //         Beaming::channel('user-' + $id_friend)->broadcast([
+    //             'type' => 'friend-request',
+    //             'data' => ['senderId' => $id_User],
+    //         ]);
+    //     }
+    // }
+
+    // private function sendFriendRequestNotification($id_friend, $id_User)
+    // {
+    //     $user = User::find($id_friend);
+
+    //     // Kiểm tra xem người dùng có trực tuyến hay không bằng Pusher Presence Channels
+    //     if ($user->isOnline()) 
+    //     {
+    //         // Gửi thông báo bằng Pusher Echo
+    //         try {
+    //             Echo::channel('user-' . $receiverId)->whisper('friend-request', [
+    //                 'senderId' => $senderId,
+    //             ]);
+    //         } catch (\Pusher\PusherException $e) {
+    //             // Handle Pusher communication errors (optional)
+    //             log::error("Pusher Error: " . $e->getMessage());
+    //         }
+    //     }
+    //     else {
+    //         // Gửi thông báo bằng Pusher Beams (cho người dùng ngoại tuyến)
+    //         Beaming::channel('user-' + $id_friend)->broadcast([
+    //             'type' => 'friend-request',
+    //             'data' => ['senderId' => $id_User],
+    //         ]);
+    //     }
+    // }
+
+    // hàm chấp nhận lời mời kb
     public function acceptFriendRequest(Request $request, $userId)
     {
         $currentUser = Auth::user();
-        $friendRequest = $userId->FriendRequests()->where('id_friend', $currentUser)->first();
+        $friendRequest = $currentUser->friendRequests()->where('id_User',$userId)->first();
 
         if (!$friendRequest) {
             return response()->json([
@@ -70,10 +148,11 @@ class FriendRequestController extends Controller
         $friendRequest->pivot->update(['status' => 'accepted']);
         $arr =  [
             'status' => true,
-            'message' => $friendRequest -> name.'là bạn bè của bạn',
+            'message' => $friendRequest -> name.' đã trở thành bạn bè của bạn',
             'data' => [
                 'id' => $friendRequest -> id,
                 'name' => $friendRequest -> name,
+                'avatar' => $friendRequest -> avatar,
             ]
         ];
         return response()->json($arr, 200);
@@ -148,9 +227,9 @@ class FriendRequestController extends Controller
     }
 
     // hàm lấy ra danh sách bạn bè
-    public function getFriendsList(Request $request)
+    public function getFriendsList(Request $request, $userId)
     {
-        $id_User = Auth::user();
+        $id_User = User::find($userId);
         $friends = $id_User->friends;
         $arr = [
             'status' => true,
@@ -170,9 +249,9 @@ class FriendRequestController extends Controller
     }
 
     // Lấy danh sách yêu cầu kết bạn đã gửi (yêu cầu đi)
-    public function getSentFriendRequests(Request $request)
+    public function getSentFriendRequests(Request $request,$userId)
     {
-        $id_User = Auth::user();
+        $id_User = User::find($userId);
         $friendRequests = $id_User->sentFriendRequests()->get();
 
         // Biến đổi dữ liệu yêu cầu đã gửi (tùy chọn)
@@ -197,9 +276,9 @@ class FriendRequestController extends Controller
     }
 
      // Lấy danh sách yêu cầu kết bạn đang chờ (yêu cầu đến)
-     public function getPendingFriendRequests(Request $request)
+     public function getPendingFriendRequests(Request $request,$userId)
      {
-         $id_User = Auth::user();
+         $id_User = User::find($userId);
          $friendRequests = $id_User->friendRequests()->where('status', 'pending')->get();
  
          $arr = [

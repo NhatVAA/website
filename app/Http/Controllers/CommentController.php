@@ -5,29 +5,29 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Pusher\Pusher;
 use App\Models\User;
 use App\Models\Post;
 use App\Models\Comment;
 
 class CommentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    // protected $pusher;
+
+    public function __construct()
     {
-        //
+        // $this->pusher = $pusher;
+        $this->pusher = new Pusher(
+            config('broadcasting.connections.pusher.key'),
+            config('broadcasting.connections.pusher.secret'),
+            config('broadcasting.connections.pusher.app_id'),
+            [
+                'cluster' => config('broadcasting.connections.pusher.options.cluster'),
+                'useTLS' => true,
+            ]
+        );
 
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -52,6 +52,12 @@ class CommentController extends Controller
     
         $comment = new Comment($commentData);
         $post->comments()->save($comment);
+
+        // Gửi thông báo mới
+        $this->pusher->trigger('comment', 'CommentSent', [
+            'message' => $comment
+        ]);
+
         $arr = [
             'status' => true,
             'message' => 'Bình luận thành công',
@@ -87,13 +93,6 @@ class CommentController extends Controller
         return response()->json($arr, 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
