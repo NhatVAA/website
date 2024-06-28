@@ -23,6 +23,7 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 
 
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
