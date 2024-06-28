@@ -8,6 +8,10 @@ use App\Http\Requests\AuthRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Http\Resources\user as UserResource;
+use App\Http\Requests\ChangePasswordRequest;
+use Illuminate\Support\Facades\Password;
+use App\Models\PasswordReset;
+
 
 
 class AuthController extends Controller
@@ -44,7 +48,7 @@ class AuthController extends Controller
         $arr = [
             'status' => true,
             'message' => 'Đã xoá tài khoản',
-            'data' => new UserResource($user),
+            'data' => [],
         ];
         return response()->json($arr,200);
     }
@@ -114,5 +118,52 @@ class AuthController extends Controller
             'user' => $user,
         ]);
     }
+    // public function changePassword(ChangePasswordRequest $request)
+    // {
+    //     $user = auth()->user();
 
+    //     if (!Hash::check($request->current_password, $user->password)) 
+    //     {
+    //         $arr = [
+    //             'status' => false,
+    //             'message' => 'Current password is incorrect.',
+    //             'data' => [],
+    //         ];
+    //         return response()->json($arr, 401);
+    //     }
+
+    //     $user->password = Hash::make($request->new_password);
+    //     $user->save();
+    //     $arr = [
+    //         'status' => true,
+    //         'message' => 'Password changed successfully.',
+    //         'data' => [],
+    //     ];
+    //     return response()->json($arr,200);
+    // }
+
+    public function reset(ChangePasswordRequest $request)
+    {
+        $status = Password::reset(
+            $request->only('password', 'password_confirmation', 'token'),
+            function ($user, $password) {
+                $user->password = $password;
+                $user->save();
+
+                Auth::login($user);
+
+                // event(new PasswordReset($user));
+            }
+        );
+
+        if ($status === Password::PASSWORD_RESET) {
+            return response()->json([
+                'message' => 'Password has been reset successfully.',
+            ]);
+        }
+
+        return response()->json([
+            'error' => $status,
+        ], 400);
+    }
 }

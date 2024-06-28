@@ -98,7 +98,7 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     // Đề nghị kết bạn
     Route::get('/noFriend', [FriendRequestController::class, 'getPendingFriends']);
     // Tìm kiếm
-    Route::get('/search/{search}', [SearchController::class, 'search']);
+    Route::post('/search', [SearchController::class, 'search']);
     // Report cho user truyền id_Post với thông tin report vào nhé.
     Route::post('/report', [ReportController::class, 'store']);
     // *** Admin *** //
@@ -113,5 +113,6 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     // 
     Route::post('/messages', [MessageController::class, 'sendMessage']);
     Route::get('/messages', [MessageController::class, 'getMessages']);
+    Route::post('/change-password', [AuthController::class, 'reset']);
 });
 
