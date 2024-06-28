@@ -182,7 +182,7 @@ class FriendRequestController extends Controller
     }
 
 
-    // hàm từ chối kết bạn
+    // hàm từ chối lời mời kết bạn
     public function declineFriendRequest(Request $request, $userId)
     {
         $currentUser = Auth::user();
@@ -206,7 +206,7 @@ class FriendRequestController extends Controller
         ];
         return response()->json($arr, 200);
     }
-
+    
     public function declinesendFriendRequest(Request $request, $userId)
     {
         $currentUser = Auth::user();
