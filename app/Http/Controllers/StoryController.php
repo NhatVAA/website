@@ -20,16 +20,15 @@ class StoryController extends Controller
      */
     public function index()
     {
-        $story = Story::with('photos','videos','likestorys')->where('privacy',0)->latest()->get();
+        $story = Story::with('user','photos','videos','likestorys')->where('privacy',0)->latest()->get();
         $id = auth()->user()->id ;
-        $storyUse = Story::with('photos','videos','likestorys')->where('id_User',$id)->latest()->get();
+        $storyUse = Story::with('user','photos','videos','likestorys')->where('id_User',$id)->latest()->get();
         $arr = [
             'status' => true,
             'message' => 'danh sách các story',
             'data' => [
                 'All' => storyResource::collection($story),
                 'of' => storyResource::collection($storyUse),
-                // 'of' => $storyUse,
             ]
         ];
         return response()->json($arr,200);

@@ -25,11 +25,11 @@ class ProfileController extends Controller
         if((auth()->user()) != null){
             $idUser = auth()->user()->id;
             $userInfo = User::all()->find($idUser); // thông tin của User đang đăng nhập 
-            $userPost = Post::with('photos','videos','user','comments','likes')->where('id_User',$idUser)->get(); // các bài viết của User đang đăng nhập
+            $userPost = Post::with('photos','videos','user','comments','likes')->where('id_User',$idUser)->latest()->get(); // các bài viết của User đang đăng nhập
             $userFriend = Friendship::where(function ($query) use ($idUser) {
                 $query->where('id_User', $idUser)
                       ->orWhere('id_friend', $idUser);
-            })->where('status', 1)->get();
+            })->where('status', 'accepted')->get();
 
             $arr = [
                 'status' => true,
@@ -80,7 +80,7 @@ class ProfileController extends Controller
         $userFriend = Friendship::where(function ($query) use ($id) {
             $query->where('id_User', $id)
                   ->orWhere('id_friend', $id);
-        })->where('status', 1)->get();
+        })->where('status', 'accepted')->get();
         //
         if(is_null($userInfo)){
             $arr = [

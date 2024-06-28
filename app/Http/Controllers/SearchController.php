@@ -13,7 +13,7 @@ class SearchController extends Controller
     {
         $keyword = $request->input('search');
         $users = User::where('name', 'like', "%$keyword%")->get();
-        $posts = Post::where('content', 'like', "%$keyword%")->where('privacy',0)->get();
+        $posts = Post::with('user','comments', 'likes', 'photos', 'videos')->where('content', 'like', "%$keyword%")->where('privacy',0)->get();
         if(!isset($users) && !isset($posts))
         {
             $arr = [

@@ -27,8 +27,9 @@ class story extends JsonResource
             'created_at' => $this->created_at->format('d/m/Y H:i:s'),
             // 'updated_at' => $this->updated_at,
             // 'created_at' => $this->created_at,
-            'photos' => $this->photos->toArray(),
-            'videos' => $this->videos->toArray(),
+            'user' => $this->user,
+            'photos' => $this->photos,
+            'videos' => $this->videos,
             'likestorys' => $this->likestorys->toArray(),
         ];
 
