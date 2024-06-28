@@ -58,7 +58,7 @@ class FriendRequestController extends Controller
     public function acceptFriendRequest(Request $request, $userId)
     {
         $currentUser = Auth::user();
-        $friendRequest = $currentUser->sentFriendRequests()->where('id_friend', $userId)->first();
+        $friendRequest = $userId->FriendRequests()->where('id_friend', $currentUser)->first();
 
         if (!$friendRequest) {
             return response()->json([
