@@ -57,12 +57,12 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(User::class, 'friendship', 'id_User', 'id_friend' )->wherePivot('status', 'accepted')->withTimestamps();
     }
-    
+    // Người khác gửi lời mời đến mình
     public function friendRequests()
     {
         return $this->belongsToMany(User::class, 'friendship', 'id_friend', 'id_User')->wherePivot('status', 'pending')->withTimestamps();
     }
-
+    // Mình gửi lời mời đến người khác
     public function sentFriendRequests()
     {
         return $this->belongsToMany(User::class, 'friendship', 'id_User', 'id_friend')->wherePivot('status', 'pending')->withTimestamps();

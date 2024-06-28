@@ -55,10 +55,11 @@ class FriendRequestController extends Controller
         }
     }
 
+    // hàm chấp nhận lời mời kb
     public function acceptFriendRequest(Request $request, $userId)
     {
         $currentUser = Auth::user();
-        $friendRequest = $currentUser->sentFriendRequests()->where('id_friend', $userId)->first();
+        $friendRequest = $currentUser->friendRequests()->where('id_User',$userId)->first();
 
         if (!$friendRequest) {
             return response()->json([
@@ -70,10 +71,11 @@ class FriendRequestController extends Controller
         $friendRequest->pivot->update(['status' => 'accepted']);
         $arr =  [
             'status' => true,
-            'message' => $friendRequest -> name.'là bạn bè của bạn',
+            'message' => $friendRequest -> name.' đã trở thành bạn bè của bạn',
             'data' => [
                 'id' => $friendRequest -> id,
                 'name' => $friendRequest -> name,
+                'avatar' => $friendRequest -> avatar,
             ]
         ];
         return response()->json($arr, 200);
@@ -148,9 +150,9 @@ class FriendRequestController extends Controller
     }
 
     // hàm lấy ra danh sách bạn bè
-    public function getFriendsList(Request $request)
+    public function getFriendsList(Request $request, $userId)
     {
-        $id_User = Auth::user();
+        $id_User = User::find($userId);
         $friends = $id_User->friends;
         $arr = [
             'status' => true,
@@ -170,9 +172,9 @@ class FriendRequestController extends Controller
     }
 
     // Lấy danh sách yêu cầu kết bạn đã gửi (yêu cầu đi)
-    public function getSentFriendRequests(Request $request)
+    public function getSentFriendRequests(Request $request,$userId)
     {
-        $id_User = Auth::user();
+        $id_User = User::find($userId);
         $friendRequests = $id_User->sentFriendRequests()->get();
 
         // Biến đổi dữ liệu yêu cầu đã gửi (tùy chọn)
@@ -197,9 +199,9 @@ class FriendRequestController extends Controller
     }
 
      // Lấy danh sách yêu cầu kết bạn đang chờ (yêu cầu đến)
-     public function getPendingFriendRequests(Request $request)
+     public function getPendingFriendRequests(Request $request,$userId)
      {
-         $id_User = Auth::user();
+         $id_User = User::find($userId);
          $friendRequests = $id_User->friendRequests()->where('status', 'pending')->get();
  
          $arr = [

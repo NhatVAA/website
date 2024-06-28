@@ -10,7 +10,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CommentController;
-// use App\Http\Controllers\FriendRequestController;
+use App\Http\Controllers\FriendRequestController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\LikeStoryController;
 use App\Http\Controllers\StoryController;
@@ -82,23 +82,24 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     // Route::get('/story', [StoryController::class, 'Storyuse']);
     // *** Phần Friends ***
     // Route::get('/friends', [FriendRequestController::class, 'getFriendsList']);
-    Route::post('/friend/{postId}', [FriendRequestController::class, 'sendFriendRequest']);
-    Route::put('/friend/{postId}', [FriendRequestController::class, 'acceptFriendRequest']);
+    Route::post('/friend/{userId}', [FriendRequestController::class, 'sendFriendRequest']);
+    // Chấp nhận lời mời kết bạn
+    Route::put('/friend/{userId}', [FriendRequestController::class, 'acceptFriendRequest']);
     // Xoá bạn bè
-    Route::delete('/friend/{postId}', [FriendRequestController::class, 'unfriend']);
+    Route::delete('/friend/{userId}', [FriendRequestController::class, 'unfriend']);
     // Danh sách bạn bè
-    Route::get('/friend', [FriendRequestController::class, 'getFriendsList']);
+    Route::get('/friend/{usedId}', [FriendRequestController::class, 'getFriendsList']);
     // Xoá lời mời đã gửi đi
-    Route::delete('/unfriendrequest/{postId}', [FriendRequestController::class, 'declinesendFriendRequest']);
+    Route::delete('/unfriendrequest/{userId}', [FriendRequestController::class, 'declinesendFriendRequest']);
     // Từ chối kết bạn 
-    Route::delete('/unfriend/{postId}', [FriendRequestController::class, 'declineFriendRequest']);
+    Route::delete('/unfriend/{userId}', [FriendRequestController::class, 'declineFriendRequest']);
 
-    Route::get('/friendRequest', [FriendRequestController::class, 'getSentFriendRequests']);
-    Route::get('/RequestFriend', [FriendRequestController::class, 'getPendingFriendRequests']);
+    Route::get('/friendRequest/{userId}', [FriendRequestController::class, 'getSentFriendRequests']);
+    Route::get('/RequestFriend/{usedId}', [FriendRequestController::class, 'getPendingFriendRequests']);
     // Đề nghị kết bạn
     Route::get('/noFriend', [FriendRequestController::class, 'getPendingFriends']);
     // Tìm kiếm
-    Route::get('/search/{search}', [SearchController::class, 'search']);
+    Route::post('/search', [SearchController::class, 'search']);
     // Report cho user truyền id_Post với thông tin report vào nhé.
     Route::post('/report', [ReportController::class, 'store']);
     // *** Admin *** //
@@ -111,7 +112,7 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     // Xoá tài khoản dành cho admin.
     Route::delete('/userAdmin/{id}', [AuthController::class, 'destroy']);
     // 
-    Route::post('/messages', [MessageController::class, 'sendMessage']);
-    Route::get('/messages', [MessageController::class, 'getMessages']);
+    // Route::post('/messages', [MessageController::class, 'sendMessage']);
+    // Route::get('/messages', [MessageController::class, 'getMessages']);
 });
 

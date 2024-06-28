@@ -27,5 +27,9 @@ class Story extends Model
     {
         return $this->hasMany(LikeStory::class, "id_Story");
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_User');
+    }
 
 }
