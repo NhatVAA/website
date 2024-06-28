@@ -12,6 +12,20 @@ use Pusher\Echo;
 
 class FriendRequestController extends Controller
 {
+    public function __construct()
+    {
+        // $this->pusher = $pusher;
+        $this->pusher = new Pusher(
+            config('broadcasting.connections.pusher.key'),
+            config('broadcasting.connections.pusher.secret'),
+            config('broadcasting.connections.pusher.app_id'),
+            [
+                'cluster' => config('broadcasting.connections.pusher.options.cluster'),
+                'useTLS' => true,
+            ]
+        );
+
+    }
     // hàm gửi lời mời kết bạn
     public function sendFriendRequest(Request $request, $userId)
     {
