@@ -10,7 +10,6 @@ use Resources\js\bootstrap;
 use Pusher\Pusher;
 use Pusher\Echo;
 
-
 class FriendRequestController extends Controller
 {
     // hàm gửi lời mời kết bạn
@@ -47,13 +46,6 @@ class FriendRequestController extends Controller
         else{
         // Gửi yêu cầu kết bạn
         $id_User->sentFriendRequests()->attach($id_friend->id);
-
-        //gửi thông báo pusher
-        $this->pusher->trigger('friend', 'FriendSent', [
-            'message' => $id_User,
-        ]);
-        // $this->sendFriendRequestNotification($receiverId, $senderId);
-
         $arr =  [
             'status' => true,
             'message' => 'Đã gửi lời mời đến '.$id_friend -> name.' thành công',
@@ -65,58 +57,6 @@ class FriendRequestController extends Controller
         return response()->json($arr, 200);
         }
     }
-
-    // private function sendFriendRequestNotification($id_friend, $id_User)
-    // {
-    //     $user = User::find($id_friend);
-
-    //     // Kiểm tra xem người dùng có trực tuyến hay không bằng Pusher Presence Channels
-    //     if ($user->isOnline()) 
-    //     {
-    //         // Gửi thông báo bằng Pusher Echo
-    //         try {
-    //             Echo::channel('user-' . $receiverId)->whisper('friend-request', [
-    //                 'senderId' => $senderId,
-    //             ]);
-    //         } catch (\Pusher\PusherException $e) {
-    //             // Handle Pusher communication errors (optional)
-    //             log::error("Pusher Error: " . $e->getMessage());
-    //         }
-    //     }
-    //     else {
-    //         // Gửi thông báo bằng Pusher Beams (cho người dùng ngoại tuyến)
-    //         Beaming::channel('user-' + $id_friend)->broadcast([
-    //             'type' => 'friend-request',
-    //             'data' => ['senderId' => $id_User],
-    //         ]);
-    //     }
-    // }
-
-    // private function sendFriendRequestNotification($id_friend, $id_User)
-    // {
-    //     $user = User::find($id_friend);
-
-    //     // Kiểm tra xem người dùng có trực tuyến hay không bằng Pusher Presence Channels
-    //     if ($user->isOnline()) 
-    //     {
-    //         // Gửi thông báo bằng Pusher Echo
-    //         try {
-    //             Echo::channel('user-' . $receiverId)->whisper('friend-request', [
-    //                 'senderId' => $senderId,
-    //             ]);
-    //         } catch (\Pusher\PusherException $e) {
-    //             // Handle Pusher communication errors (optional)
-    //             log::error("Pusher Error: " . $e->getMessage());
-    //         }
-    //     }
-    //     else {
-    //         // Gửi thông báo bằng Pusher Beams (cho người dùng ngoại tuyến)
-    //         Beaming::channel('user-' + $id_friend)->broadcast([
-    //             'type' => 'friend-request',
-    //             'data' => ['senderId' => $id_User],
-    //         ]);
-    //     }
-    // }
 
     // hàm chấp nhận lời mời kb
     public function acceptFriendRequest(Request $request, $userId)
@@ -168,11 +108,11 @@ class FriendRequestController extends Controller
     }
 
 
-    // hàm từ chối kết bạn
+    // hàm từ chối lời mời kết bạn
     public function declineFriendRequest(Request $request, $userId)
     {
         $currentUser = Auth::user();
-        $friendRequest = $currentUser->friendRequests()->where('id_friend', $userId)->first();
+        $friendRequest = $currentUser->friendRequests()->where('id_User', $userId)->first();
 
         if (!$friendRequest) {
             $arr =  [
@@ -192,7 +132,7 @@ class FriendRequestController extends Controller
         ];
         return response()->json($arr, 200);
     }
-
+    // hàm bỏ gửi lời mời kb
     public function declinesendFriendRequest(Request $request, $userId)
     {
         $currentUser = Auth::user();

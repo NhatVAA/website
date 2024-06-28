@@ -91,7 +91,7 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     Route::get('/friend/{usedId}', [FriendRequestController::class, 'getFriendsList']);
     // Xoá lời mời đã gửi đi
     Route::delete('/unfriendrequest/{userId}', [FriendRequestController::class, 'declinesendFriendRequest']);
-    // Từ chối kết bạn 
+    // Từ chối lời mời kết bạn 
     Route::delete('/unfriend/{userId}', [FriendRequestController::class, 'declineFriendRequest']);
 
     Route::get('/friendRequest/{userId}', [FriendRequestController::class, 'getSentFriendRequests']);
