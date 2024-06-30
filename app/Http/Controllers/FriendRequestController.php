@@ -282,7 +282,7 @@ class FriendRequestController extends Controller
          $allUsers = User::all();
  
          // Lọc danh sách người dùng để chỉ lấy những người dùng chưa kết bạn
-         $pendingFriends = $allUsers->whereNotIn('id', $friends->pluck('id'))->limit(0,5);
+         $pendingFriends = $allUsers->whereNotIn('id', $friends->pluck('id'))->take(5);
         
          $arr = [
             'status' => true,

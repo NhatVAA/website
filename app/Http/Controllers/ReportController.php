@@ -31,11 +31,18 @@ class ReportController extends Controller
      */
     public function store(Request $request)
     {
-        
-        $validator = $request->validate([
-            'id_Post' => 'required|exists:post,id',
+        $input = $request->all();
+        $validator = Validator::make($input, 
+        [
+            'id_Post' => 'required',
             'reason' => 'required',
         ]);
+        $id_User = Auth::user()->id;
+        $report = [
+            'id_Post' => $request->input('id_Post'),
+            'id_User' => $id_User,
+            'reason' => $request->input('reason'),
+        ];
         if ($validator->fails()) 
             {
                 $arr = [              
@@ -46,11 +53,7 @@ class ReportController extends Controller
                 return response()->json($arr,404);
             }
             // Lưu báo cáo vào database
-            $report = Report::create([
-                'id_Post' => $request->id_Post,
-                'id_User' => Auth::user()->id,
-                'reason' => $request->reason,
-            ]);
+            $report = Report::create($report);
             $arr = [
                 'status' => true,
                 'message' => 'Báo cáo thành công',
