@@ -118,7 +118,7 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     Route::get('/friendRequest/{userId}', [FriendRequestController::class, 'getSentFriendRequests']);
     Route::get('/RequestFriend/{usedId}', [FriendRequestController::class, 'getPendingFriendRequests']);
     // Đề nghị kết bạn
-    Route::get('/noFriend', [FriendRequestController::class, 'getPendingFriends']);
+    Route::get('/noFriend', [FriendRequestController::class, 'noFriends']);
     // Tìm kiếm
     Route::post('/search', [SearchController::class, 'search']);
     // Report cho user truyền id_Post với thông tin report vào nhé.

@@ -41,7 +41,6 @@ class MessageController extends Controller
             'receiver_id' => $receiverId,
             'message' => $message
         ]);
-        // broadcast(new MessageSent($newMessage));
 
         // Gửi thông báo cho người nhận
         $this->pusher->trigger('messages.' . $senderId + $receiverId, 'MessageSent', [
@@ -53,8 +52,6 @@ class MessageController extends Controller
             'user' => $userSend,
         ]);
         // Event(new MessageSent($newMessage));
-        
-        // broadcast(new MessageSent($newMessage))->toOthers();
 
         $arr = [
             'status' => true,
@@ -68,9 +65,6 @@ class MessageController extends Controller
     {
         $userId = $request->user()->id;
         //
-        // $receivedMessages = Message::where('receiver_id', $userId)->get();
-        // $sentMessages = Message::where('sender_id', $idSender)->get();
-        // $sentMessages = Message::where('receiver_id', $userId)->get();
         $messages = Message::where(function ($query) use ($userId, $idSender) {
             $query->where('sender_id', $idSender)
                   ->where('receiver_id', $userId);
@@ -79,14 +73,11 @@ class MessageController extends Controller
                   ->where('receiver_id', $idSender);
         })->get();
 
-        // $messages = $receivedMessages->merge($sentMessages);
+        // $receivedMessages = Message::where('receiver_id', $userId)->get();
+        // $sentMessages = Message::where('sender_id', $userId)->get();
 
-        $messages = $messages->sortBy('created_at');
+        // $messages = $receivedMessages->merge($sentMessages)->sortBy('created_at');
 
-        // $messagesArr = [
-        //     'receivedMessages' => $receivedMessages->sortBy('created_at'),
-        //     'sentedMessages' => $sentMessages->sortBy('created_at'), 
-        // ];
 
         $arr = [
             'status' => true,

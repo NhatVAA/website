@@ -11,15 +11,16 @@ class Notification extends Model
 
     protected $table = 'notification';
     protected $fillable = [
-        'id_Post',
         'id_User',
-        'type',
-        'read_at',
+        'idPost',
+        'content',
+        // 'type',
+        // 'read_at',
     ];
 
     public function post()
     {
-        return $this->belongsTo(Post::class, 'id_Post'  );
+        return $this->belongsTo(Post::class, 'idPost'  );
     }
     
     public function user()

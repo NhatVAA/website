@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PasswordReset extends Model
+class PasswordResets extends Model
 {
     use HasFactory;
 
@@ -16,4 +16,6 @@ class PasswordReset extends Model
         'token',
         'created_at',
     ];
+    
+
 }

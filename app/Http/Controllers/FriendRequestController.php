@@ -273,7 +273,7 @@ class FriendRequestController extends Controller
          return response()->json($arr, 200);
      }
 
-     //Lấy danh sách bạn bè chauw kết bạn (đề xuất bạn bè)
+     //Lấy danh sách bạn bè chauw kết bạn
     public function getPendingFriends(Request $request)
      {
          $id_User = Auth::user();
