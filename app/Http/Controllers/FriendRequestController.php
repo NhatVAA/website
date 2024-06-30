@@ -64,6 +64,7 @@ class FriendRequestController extends Controller
         //gửi thông báo pusher
         $this->pusher->trigger('friend', 'FriendSent', [
             'message' => $id_User,
+            'receiver' => $id_friend,
         ]);
         // $this->sendFriendRequestNotification($receiverId, $senderId);
         $arr =  [
@@ -138,10 +139,12 @@ class FriendRequestController extends Controller
         if (!$recipientUser ) {
             return response()->json(['error' => 'Người dùng không tồn tại'], 404);
         }
-
+        
         // Kiểm tra xem người dùng có phải là bạn của nhau hay không
         if (!$currentUser->isFriendsWith($recipientUser)) {
-            return response()->json(['error' => 'Bạn không phải là bạn bè của người dùng này'], 400);
+            return response()->json([
+                'error' => 'Bạn không phải là bạn bè của người dùng này',
+            ], 400);
         }
         // Xóa bạn bè
         $currentUser->friends()->detach($userId);
@@ -270,7 +273,7 @@ class FriendRequestController extends Controller
          return response()->json($arr, 200);
      }
 
-     //Lấy danh sách bạn bè chauw kết bạn
+     //Lấy danh sách bạn bè chauw kết bạn (đề xuất bạn bè)
     public function getPendingFriends(Request $request)
      {
          $id_User = Auth::user();
@@ -282,7 +285,7 @@ class FriendRequestController extends Controller
          $allUsers = User::all();
  
          // Lọc danh sách người dùng để chỉ lấy những người dùng chưa kết bạn
-         $pendingFriends = $allUsers->whereNotIn('id', $friends->pluck('id'))->limit(0,5);
+        $pendingFriends = $allUsers->whereNotIn('id', $friends->pluck('id'))->take(5);
         
          $arr = [
             'status' => true,
