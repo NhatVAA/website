@@ -7,11 +7,16 @@ use Illuminate\Http\Request;
 use App\Http\Requests\AuthRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Post;
+use App\Models\Like;
+use App\Models\LikeStory;
+use App\Models\Message;
+use App\Models\Notification;
 use App\Http\Resources\user as UserResource;
 use App\Http\Requests\ChangePasswordRequest;
 use Illuminate\Support\Facades\Password;
 use App\Models\PasswordReset;
-
+use Illuminate\Support\Facades\DB;
 
 
 class AuthController extends Controller
@@ -36,21 +41,39 @@ class AuthController extends Controller
         ];
         return response()->json($arr,200);
     }
-    public function destroy(User $id){
+    public function destroy(User $user){
 
-        $user = User::find($id);
-        if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
+        DB::beginTransaction();
+
+        try {
+            // $user = User::find($id);
+            if (!$user) {
+                return response()->json(['message' => 'User not found'], 404);
+            }
+            $user->posts()->delete();
+            $user->comments()->delete();
+            $user->friend()->delete();
+            $user->likes()->delete();
+            $user->likestorys()->delete();
+            $user->reports()->delete();
+            $user->storys()->delete();
+            $user->posts()->delete();
+            $user->messages()->delete();
+            $user->notifications()->delete();
+            $user->personal_access_tokens()->delete();
+            $user->delete();
+
+            // Commit transaction nếu không có lỗi
+            DB::commit();
+
+            // Trả về thông báo thành công
+            return response()->json(['message' => 'User and related records deleted successfully'], 200);
+        } catch (\Exception $e) {
+            // Nếu có lỗi, rollback transaction và trả về thông báo lỗi
+            DB::rollback();
+            return response()->json(['message' => 'Failed to delete user and related records', 'error' => $e->getMessage()], 500);
         }
     
-        // Xóa người dùng
-        $user->delete();
-        $arr = [
-            'status' => true,
-            'message' => 'Đã xoá tài khoản',
-            'data' => [],
-        ];
-        return response()->json($arr,200);
     }
 
     public function login(AuthRequest $request){
@@ -145,28 +168,16 @@ class AuthController extends Controller
     public function reset(ChangePasswordRequest $request)
     {
         $status = Password::reset(
-            $request->only('password', 'password_confirmation', 'token'),
+            $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {
-                $use;
-                $user->save();
-
-                Auth::login($user);
-
-                // event(new PasswordReset($user));
-                return response()->json([
-                    'error' => $user,
-                ], 200);
+                $user->forceFill([
+                    'password' => hash($password)
+                ])->save();
             }
         );
 
-        if ($status === Password::PASSWORD_RESET) {
-            return response()->json([
-                'message' => 'Password has been reset successfully.',
-            ]);
-        }
-
-        return response()->json([
-            'error' => $status,
-        ], 400);
+        return $status == Password::PASSWORD_RESET
+                    ? response()->json(['message' => __($status)], 200)
+                    : response()->json(['message' => __($status)], 400);
     }
 }

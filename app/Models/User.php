@@ -52,8 +52,17 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+    // protected static function boot()
+    // {
+    //     parent::boot();
 
-    protected $cascadeDeletes = ['comments', 'likes' , 'reports' , 'friend' , 'likestorys' , 'photos','videos','posts','storys', 'messages'];
+    //     // Xử lý sự kiện xóa User
+    //     static::deleting(function ($user) {
+    //         // Xóa các bài post của user
+    //         $user->posts()->delete();
+    //     });
+    // }
+    // protected $cascadeDeletes = ['comments', 'likes' , 'reports' , 'friend' , 'likestorys' , 'photos','videos','posts','storys', 'messages','notifications','personal_access_tokens'];
 
     public function friends()
     {
@@ -74,51 +83,47 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->friends->contains($user);
     }
-    // public function pendingFriends():BelongsToMany
-    // {
-    //     $pendingFriends = $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')
-    //         ->wherePivot('status', 'pending');
-    //     return $pendingFriends;
-    // }
+  
+
     public function friend()
     {
-        return $this->hasMany(Friendship::class  )->onDelete('cascade');
-    }
-    public function comments()
-    {
-        return $this->hasMany(Comment::class  )->onDelete('cascade');
-    }
-    public function likes()
-    {
-        return $this->hasMany(Like::class  )->onDelete('cascade');
-    }
-    public function likestorys()
-    {
-        return $this->hasMany(LikeStory::class)->onDelete('cascade');
-    }
-    public function photos()
-    {
-        return $this->hasMany(Photo::class )->onDelete('cascade');
-    }
-    public function videos()
-    {
-        return $this->hasMany(Video::class )->onDelete('cascade');
-    }
-    
-    public function reports() {
-        return $this->hasMany(Report::class)->onDelete('cascade');
-    }
-    public function storys()
-    {
-        return $this->hasMany(Story::class  )->onDelete('cascade');
-    }
-    public function posts()
-    {
-        return $this->hasMany(Post::class  )->onDelete('cascade');
+        return $this->belongsToMany(User::class, 'friendship', 'id_User', 'id_friend'  );
     }
     public function messages()
     {
-        return $this->hasMany(Message::class)->onDelete('cascade');
+        return $this->belongsToMany(User::class, 'message', 'sender_id', 'receiver_id');
+    }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class, 'id_User' );
+    }
+    public function likes()
+    {
+        return $this->hasMany(Like::class, 'id_User'  );
+    }
+    public function likestorys()
+    {
+        return $this->hasMany(LikeStory::class, 'id_User');
+    }
+    
+    public function reports() {
+        return $this->hasMany(Report::class, 'id_User');
+    }
+    public function storys()
+    {
+        return $this->hasMany(Story::class , 'id_User' );
+    }
+    public function posts()
+    {
+        return $this->hasMany(Post::class, 'id_User'  );
+    }
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'id_User');
+    }
+    public function personal_access_tokens()
+    {
+        return $this->belongsTo(personal_access_tokens::class);
     }
     
     // public function sendEmailVerificationNotification()

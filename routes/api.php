@@ -118,7 +118,7 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     Route::get('/friendRequest/{userId}', [FriendRequestController::class, 'getSentFriendRequests']);
     Route::get('/RequestFriend/{usedId}', [FriendRequestController::class, 'getPendingFriendRequests']);
     // Đề nghị kết bạn
-    Route::get('/noFriend', [FriendRequestController::class, 'getPendingFriends']);
+    Route::get('/noFriend', [FriendRequestController::class, 'noFriends']);
     // Tìm kiếm
     Route::post('/search', [SearchController::class, 'search']);
     // Report cho user truyền id_Post với thông tin report vào nhé.
@@ -134,7 +134,9 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     Route::delete('/userAdmin/{id}', [AuthController::class, 'destroy']);
     // 
     Route::post('/messages', [MessageController::class, 'sendMessage']);
-    Route::get('/messages', [MessageController::class, 'getMessages']);
+    Route::get('/messages/{idSender}', [MessageController::class, 'getMessages']);
+    Route::get('/boxMessages', [MessageController::class, 'getBoxMessages']);
+    Route::get('/lastestMessages', [MessageController::class, 'getListNewMessages']);
     // Reset password
     Route::put('/change-password', [AuthController::class, 'reset']);
 });
