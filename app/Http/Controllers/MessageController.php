@@ -62,9 +62,9 @@ class MessageController extends Controller
         $receivedMessages = Message::where('receiver_id', $userId)->get();
         $sentMessages = Message::where('sender_id', $userId)->get();
 
-        $messages = $receivedMessages->merge($sentMessages);
+        $messages = $receivedMessages->merge($sentMessages)->sortBy('created_at');
 
-        $messages = $messages->sortBy('created_at');
+        // $messages = $messages->sortBy('created_at');
 
         $arr = [
             'status' => true,
