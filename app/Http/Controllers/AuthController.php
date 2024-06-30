@@ -15,9 +15,11 @@ use App\Models\Notification;
 use App\Http\Resources\user as UserResource;
 use App\Http\Requests\ChangePasswordRequest;
 use Illuminate\Support\Facades\Password;
-use App\Models\PasswordReset;
+use App\Models\PasswordResets;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\personal_access_tokens;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -165,18 +167,33 @@ class AuthController extends Controller
     //     return response()->json($arr,200);
     // }
 
-    public function reset(ChangePasswordRequest $request)
+    public function reset(Request $request)
     {
+        // $request->validate([
+        //     'current_password' => 'required',
+        //     'password' => 'required|min:8|confirmed',
+        // ]);
+
+        $user = auth()->user();
+
+        if (!Hash::check($request->input('current_password'), $user->password)) {
+            return response()->json([
+                'message' => __('Incorrect current password.'),
+            ], 400);
+        }
+
         $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user, $password) {
+            compact('user'), // Pass user object in a compact array
+            function ($users, $password) {
                 $user->forceFill([
-                    'password' => hash($password)
+                    'password' => Hash::make($password),
                 ])->save();
+
+                // event(new PasswordReset($user));
             }
         );
 
-        return $status == Password::PASSWORD_RESET
+        return $status === Password::PASSWORD_RESET
                     ? response()->json(['message' => __($status)], 200)
                     : response()->json(['message' => __($status)], 400);
     }

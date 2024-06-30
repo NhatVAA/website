@@ -130,5 +130,8 @@ class User extends Authenticatable implements MustVerifyEmail
     // {
     //     $this->notify(new Notificationss);
     // }
-   
+    // public function PasswordResets()
+    // {
+    //     return $this->belongsTo(PasswordResets::class);
+    // }
 }
