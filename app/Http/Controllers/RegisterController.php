@@ -6,7 +6,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\user as ResourceUser;
-
+use App\Mail\VerifyEmail;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class RegisterController extends Controller
 {
@@ -41,6 +44,9 @@ class RegisterController extends Controller
                             'token_type' => 'Bearer'
                           ],
             ];
+            
+            event(new Registered($user));
+
             return response()->json($arr, 201);
         }
         catch (\Exception $e) {

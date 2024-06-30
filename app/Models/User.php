@@ -9,11 +9,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Laravel\Sanctum\HasApiTokens;
-
+// use App\Notifications\Notifications\Notificationss ;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable ;
+
 
     /**
      * The attributes that are mass assignable.
@@ -51,6 +52,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
     protected $cascadeDeletes = ['comments', 'likes' , 'reports' , 'friend' , 'likestorys' , 'photos','videos','posts','storys', 'messages'];
 
     public function friends()
@@ -118,5 +120,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Message::class)->onDelete('cascade');
     }
+    
+    // public function sendEmailVerificationNotification()
+    // {
+    //     $this->notify(new Notificationss);
+    // }
    
 }
