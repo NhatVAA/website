@@ -132,7 +132,9 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     Route::delete('/userAdmin/{id}', [AuthController::class, 'destroy']);
     // 
     Route::post('/messages', [MessageController::class, 'sendMessage']);
-    Route::get('/messages', [MessageController::class, 'getMessages']);
+    Route::get('/messages/{idSender}', [MessageController::class, 'getMessages']);
+    Route::get('/boxMessages', [MessageController::class, 'getBoxMessages']);
+    Route::get('/lastestMessages', [MessageController::class, 'getListNewMessages']);
     // Reset password
     Route::put('/change-password', [AuthController::class, 'reset']);
 });
