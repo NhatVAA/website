@@ -32,6 +32,7 @@ class RegisterController extends Controller
             'gender' => $request->input('gender'),
             'role' => 2001, // 2001 là mã quyền của người dùng bình thường, 5150 là của admin
         ];
+
         try{
             $user = User::create($input);
             $token= $user->createToken('auth_token')->plainTextToken;
@@ -45,7 +46,7 @@ class RegisterController extends Controller
                           ],
             ];
             
-            event(new Registered($user));
+            event(new Registered($user)); 
 
             return response()->json($arr, 201);
         }
