@@ -45,6 +45,7 @@ class AuthController extends Controller
     }
     public function destroy(User $user){
 
+        // $user = User::find($user);
         DB::beginTransaction();
 
         try {
@@ -59,7 +60,6 @@ class AuthController extends Controller
             $user->likestorys()->delete();
             $user->reports()->delete();
             $user->storys()->delete();
-            $user->posts()->delete();
             $user->messages()->delete();
             $user->notifications()->delete();
             $user->personal_access_tokens()->delete();
