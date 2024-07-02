@@ -120,12 +120,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function notifications()
     {
         return $this->hasMany(Notification::class, 'id_User');
-    }
-    public function personal_access_tokens()
-    {
-        return $this->belongsTo(personal_access_tokens::class);
-    }
-    
+    } 
     // public function sendEmailVerificationNotification()
     // {
     //     $this->notify(new Notificationss);

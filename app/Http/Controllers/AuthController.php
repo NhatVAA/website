@@ -117,6 +117,7 @@ class AuthController extends Controller
     }
     public function logout()  {
         auth()->user()->tokens()->delete();
+        Auth::logout();
         $arr = [
             'success' => true,
             'message' => 'Bạn đã thoát và token đã xóa',
