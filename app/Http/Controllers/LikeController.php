@@ -34,7 +34,7 @@ class LikeController extends Controller
             return response()->json(['error' => 'Post not found'], 404);
         }
 
-        $userId = auth()->user()->id; // Assuming you have user authentication
+        $userId = auth()->user()->id; //
         
         $like = $post->likes()->where('id_User', $userId)->first();
 

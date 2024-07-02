@@ -274,7 +274,7 @@ class FriendRequestController extends Controller
      }
 
      //Lấy danh sách bạn bè chauw kết bạn
-    public function getPendingFriends(Request $request)
+    public function noFriends(Request $request)
      {
          $id_User = Auth::user();
  

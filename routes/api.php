@@ -66,6 +66,8 @@ Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 // Group middleware authed (yêu cầu người dùng phải đăng nhập rồi)
 Route::group(['middleware' => ['auth:sanctum']] , function () 
 {
+    // route đổi mật khẩu
+    Route::put('/changePassword', [AuthController::class, 'changePassword']);
     // route đăng xuất
     Route::get('/logout', [AuthController::class, 'logout']);
     // route refresh token
@@ -139,6 +141,6 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     Route::get('/boxMessages', [MessageController::class, 'getBoxMessages']);
     Route::get('/lastestMessages', [MessageController::class, 'getListNewMessages']);
     // Reset password
-    Route::put('/change-password', [AuthController::class, 'reset']);
+    // Route::put('/change-password', [AuthController::class, 'reset']);
 });
 

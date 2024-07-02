@@ -144,29 +144,29 @@ class AuthController extends Controller
             'user' => $user,
         ]);
     }
-    // public function changePassword(ChangePasswordRequest $request)
-    // {
-    //     $user = auth()->user();
+    public function changePassword(ChangePasswordRequest $request)
+    {
+        $user = auth()->user();
 
-    //     if (!Hash::check($request->current_password, $user->password)) 
-    //     {
-    //         $arr = [
-    //             'status' => false,
-    //             'message' => 'Current password is incorrect.',
-    //             'data' => [],
-    //         ];
-    //         return response()->json($arr, 401);
-    //     }
+        if (!Hash::check($request->current_password, $user->password)) 
+        {
+            $arr = [
+                'status' => false,
+                'message' => 'Current password is incorrect.',
+                'data' => [],
+            ];
+            return response()->json($arr, 401);
+        }
 
-    //     $user->password = Hash::make($request->new_password);
-    //     $user->save();
-    //     $arr = [
-    //         'status' => true,
-    //         'message' => 'Password changed successfully.',
-    //         'data' => [],
-    //     ];
-    //     return response()->json($arr,200);
-    // }
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+        $arr = [
+            'status' => true,
+            'message' => 'Password changed successfully.',
+            'data' => [],
+        ];
+        return response()->json($arr,200);
+    }
 
     public function reset(Request $request)
     {
