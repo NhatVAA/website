@@ -8,6 +8,8 @@ use App\Http\Requests\AuthRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Post;
+use App\Models\Friendship;
+use App\Models\Comment;
 use App\Models\Like;
 use App\Models\LikeStory;
 use App\Models\Message;
@@ -43,39 +45,46 @@ class AuthController extends Controller
         ];
         return response()->json($arr,200);
     }
-    public function destroy(User $user){
-
-        // $user = User::find($user);
+    public function destroy($userId)
+    {
+        
+        $user = User::find($userId);
         DB::beginTransaction();
-
+        // $idMessager = Message::where('sender_id', $userId)->where('receiver_id', $userId)->get();
         try {
-            // $user = User::find($id);
+            // $user = User::find($userId);
             if (!$user) {
                 return response()->json(['message' => 'User not found'], 404);
-            }
-            $user->posts()->delete();
+            }        
+
             $user->comments()->delete();
-            $user->friend()->delete();
             $user->likes()->delete();
             $user->likestorys()->delete();
             $user->reports()->delete();
-            $user->storys()->delete();
-            $user->messages()->delete();
             $user->notifications()->delete();
             $user->personal_access_tokens()->delete();
+            $user->posts()->delete();
+            $user->storys()->delete();
+            Message::where('sender_id', $userId)->delete();
+            Message::where('receiver_id', $userId)->delete();
+            Friendship::where('id_User', $userId)->delete();
+            Friendship::where('id_friend', $userId)->delete();
             $user->delete();
-
             // Commit transaction nếu không có lỗi
             DB::commit();
 
             // Trả về thông báo thành công
-            return response()->json(['message' => 'User and related records deleted successfully'], 200);
-        } catch (\Exception $e) {
+            return response()->json([
+                'status' => true,
+                'message' => 'User and related records deleted successfully',
+                'data' => [],
+            ], 200);
+        }catch (\Exception $e){
             // Nếu có lỗi, rollback transaction và trả về thông báo lỗi
             DB::rollback();
             return response()->json(['message' => 'Failed to delete user and related records', 'error' => $e->getMessage()], 500);
         }
-    
+        
     }
 
     public function login(AuthRequest $request){

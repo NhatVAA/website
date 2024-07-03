@@ -50,7 +50,11 @@ Route::get('/email/verify', function () {
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
   
-    // return 'a';
+    return response()->json([
+        'status' => true,
+        'message' => 'Verifi thành công',
+        'data' => [],
+    ],200);
 
 })->middleware(['auth:sanctum', 'signed'])->name('verification.verify');
 
@@ -134,13 +138,12 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     // Các thông tin tài khoản user.
     Route::get('/userAdmin', [AuthController::class, 'index']);
     // Xoá tài khoản dành cho admin.
-    Route::delete('/userAdmin/{id}', [AuthController::class, 'destroy']);
+    Route::delete('/userAdmin/{user}', [AuthController::class, 'destroy']);
     // 
     Route::post('/messages', [MessageController::class, 'sendMessage']);
     Route::get('/messages/{idSender}', [MessageController::class, 'getMessages']);
     Route::get('/boxMessages', [MessageController::class, 'getBoxMessages']);
     Route::get('/lastestMessages', [MessageController::class, 'getListNewMessages']);
     // Reset password
-    // Route::put('/change-password', [AuthController::class, 'reset']);
 });
 
