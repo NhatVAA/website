@@ -9,6 +9,7 @@ use Pusher\Pusher;
 use App\Models\User;
 use App\Models\Post;
 use App\Models\Comment;
+use Illuminate\Support\Facades\DB;
 
 class CommentController extends Controller
 {
@@ -55,7 +56,9 @@ class CommentController extends Controller
 
         // Gửi thông báo mới
         $this->pusher->trigger('comment', 'CommentSent', [
-            'message' => $comment
+            'message' => $comment,
+            'post' => $post,
+            'user' => auth()->user(),
         ]);
 
         $arr = [

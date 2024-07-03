@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Laravel\Sanctum\HasApiTokens;
+
 // use App\Notifications\Notifications\Notificationss ;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -31,6 +32,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'avatar',
         'coverimage',
         'role',
+        'email_verified_at',
+        'remember_token',
     ];
 
     /**

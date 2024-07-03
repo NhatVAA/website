@@ -59,6 +59,8 @@ class LikeController extends Controller
             //Gửi thông báo pusher
             $this->pusher->trigger('like', 'LikeSent', [
                 'message' => $newLike,
+                'post' => $post,
+                'user' => auth()->user(),
             ]);
 
             $arr = [

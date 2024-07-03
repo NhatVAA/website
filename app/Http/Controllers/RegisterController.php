@@ -46,7 +46,7 @@ class RegisterController extends Controller
                           ],
             ];
             
-            event(new Registered($user)); 
+            event(new Registered($user));
 
             return response()->json($arr, 201);
         }

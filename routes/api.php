@@ -17,6 +17,7 @@ use App\Http\Controllers\StoryController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\MessageController; 
+use App\Http\Controllers\NotificationController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 
@@ -49,7 +50,7 @@ Route::get('/email/verify', function () {
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
   
-    // return redirect('/home');
+    return redirect('http://localhost:3000/profile/');
 
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
@@ -76,7 +77,7 @@ Route::group(['middleware' => ['auth:sanctum']] , function ()
     Route::get('/profile/friends/{id_User}', [ProfileController::class, 'getProfileFriendList']);
     // route CRUD cho post (Create, Read, Update, Delete)
     Route::apiResource('/post', PostController::class, );
-
+    Route::get('/getLastestInteract', [NotificationController::class, 'getLastestInteract']);
     // *** phần Comment ***
     // Route::apiResource('/comment', CommentController::class, );
     // Lấy ra các Comment của bài viết (với Id bài viết)

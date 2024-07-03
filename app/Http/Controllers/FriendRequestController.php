@@ -141,11 +141,11 @@ class FriendRequestController extends Controller
         }
         
         // Kiểm tra xem người dùng có phải là bạn của nhau hay không
-        if (!$currentUser->isFriendsWith($recipientUser)) {
-            return response()->json([
-                'error' => 'Bạn không phải là bạn bè của người dùng này',
-            ], 400);
-        }
+        // if (!$currentUser->isFriendsWith($recipientUser)) {
+        //     return response()->json([
+        //         'error' => 'Bạn không phải là bạn bè của người dùng này',
+        //     ], 400);
+        // }
         // Xóa bạn bè
         $currentUser->friends()->detach($userId);
         $arr =  [
